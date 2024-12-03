@@ -28,7 +28,6 @@ Route::post('/register', [RegisterController::class, 'register'])->name('api.reg
 Route::post('/logout', [AuthController::class, 'logout'])
     ->middleware('auth:sanctum')
     ->name('api.logout');
-
 // Test login endpoint
 Route::post('/login-test', function (Request $request) {
     $credentials = $request->validate([
