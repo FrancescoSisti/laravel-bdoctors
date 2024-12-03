@@ -40,6 +40,7 @@ class SponsorshipSeeder extends Seeder
             $newSponsorship->duration = $singlesponsor['duration'];
             $newSponsorship->price = $singlesponsor['price'];
             $newSponsorship->description = $faker->realTextBetween(20,80);
+            $newSponsorship->save();
         }
     }
 }

@@ -43,10 +43,10 @@ class User extends Authenticatable
     ];
 
     public function specializations(){
-        return $this->hasMany(Specialization::class);
+        return $this->belongsToMany(Specialization::class);
     }
 
-    public function profiles(){
+    public function profile(){
         return $this->belongsTo(Profile::class);
     }
 }

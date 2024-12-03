@@ -20,7 +20,9 @@ class DatabaseSeeder extends Seeder
             ProfileSeeder::class,
             MessageSeeder::class,
             ReviewSeeder::class,
-            //SpecializationUserSeeder::class,
+            SponsorshipSeeder::class,
+            SpecializationUserSeeder::class,
+            ProfileSponsorshipSeeder::class
 
        ]);
     }
