@@ -18,12 +18,14 @@ class ProfileSponsorshipSeeder extends Seeder
     {
         $profiles = Profile::all();
 
-        $sponsorships = Sponsorship::all()->pluck("id");
+        $sponsorships = Sponsorship::all()->pluck('id');
 
         foreach($profiles as $profile) {
-            $profile->sponsorships()->attach($faker->randomElements($sponsorships));
-            $profile->start_date = $faker->date();
-            $profile->end_date = $faker->date();
+            $randomSponsorship = $faker->randomElements($sponsorships->toArray());
+            $profile->sponsorships()->attach($randomSponsorship, [
+                'start_date' => $faker->date(),
+                'end_date' => $faker->date()
+            ]);
         }
     }
 }
