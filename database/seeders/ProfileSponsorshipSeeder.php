@@ -22,6 +22,8 @@ class ProfileSponsorshipSeeder extends Seeder
 
         foreach($profiles as $profile) {
             $profile->sponsorships()->attach($faker->randomElements($sponsorships));
+            $profile->start_date = $faker->date();
+            $profile->end_date = $faker->date();
         }
     }
 }
