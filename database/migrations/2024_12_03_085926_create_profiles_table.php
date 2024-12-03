@@ -15,13 +15,13 @@ return new class extends Migration
 
         Schema::create('profiles', function (Blueprint $table) {
             $table->id();
-            $table->bigInteger('user_id')->primary();
-            $table->foreign('user_id')->references('id')->on('users');
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->text('curriculum')->nullable();
             $table->text('photo')->nullable();
             $table->string('office_address');
             $table->string('phone', 30)->nullable();
             $table->text('services')->nullable();
+            $table->timestamps();
         });
 
         Schema::enableForeignKeyConstraints();

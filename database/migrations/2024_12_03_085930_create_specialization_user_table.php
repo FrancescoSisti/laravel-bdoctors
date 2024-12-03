@@ -14,10 +14,9 @@ return new class extends Migration
         Schema::disableForeignKeyConstraints();
 
         Schema::create('specialization_user', function (Blueprint $table) {
-            $table->id();
-            $table->foreign('specialization_id')->references('id')->on('specializations');
-            $table->bigInteger('user_id')->primary();
-            $table->foreign('user_id')->references('id')->on('users');
+            $table->foreignId('specialization_id')->constrained()->onDelete('cascade');
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->primary(['specialization_id', 'user_id']);
         });
 
         Schema::enableForeignKeyConstraints();

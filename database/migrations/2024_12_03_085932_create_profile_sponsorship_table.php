@@ -14,12 +14,12 @@ return new class extends Migration
         Schema::disableForeignKeyConstraints();
 
         Schema::create('profile_sponsorship', function (Blueprint $table) {
-            $table->id();
-            $table->foreign('profile_id')->references('id')->on('profiles');
-            $table->bigInteger('sponsorship_id')->primary();
-            $table->foreign('sponsorship_id')->references('id')->on('sponsorships');
+            $table->foreignId('profile_id')->constrained()->onDelete('cascade');
+            $table->foreignId('sponsorship_id')->constrained()->onDelete('cascade');
             $table->dateTime('start_date');
             $table->dateTime('end_date');
+            $table->primary(['profile_id', 'sponsorship_id']);
+            $table->timestamps();
         });
 
         Schema::enableForeignKeyConstraints();
