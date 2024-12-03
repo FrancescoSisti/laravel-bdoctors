@@ -16,4 +16,8 @@ class Profile extends Model
     public function messages(){
         return $this->hasMany(Message::class);
     }
+
+    public function sponsorships(){
+        return $this->hasMany(Sponsorship::class);
+    }
 }

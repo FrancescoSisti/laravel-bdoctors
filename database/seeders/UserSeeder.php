@@ -16,15 +16,15 @@ class UserSeeder extends Seeder
      */
     public function run(Faker $faker): void
     {
-        $specializationIds = Specialization::all()->pluck("id");
+
 
         for($i = 0; $i < 250; $i++) {
             $newUser = new User();
-            $newUser->specialization_id = $faker->randomElement($specializationIds);
             $newUser->first_name = $faker->firstName();
             $newUser->last_name = $faker->unique()->lastName();
+            $newUser->password = $faker->password(6,20);
             $newUser->email = $faker->email();
-            $newUser->addres = $faker->streetAddress();
+            $newUser->home_address = $faker->streetAddress();
             $newUser->save();
         }
     }

@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('first_name', 50);
             $table->string('last_name', 50);
             $table->string('home_address', 100);
+            $table->timestamps();
         });
     }
 

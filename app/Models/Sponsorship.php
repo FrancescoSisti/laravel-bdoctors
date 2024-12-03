@@ -8,4 +8,8 @@ use Illuminate\Database\Eloquent\Model;
 class Sponsorship extends Model
 {
     use HasFactory;
+
+    public function profiles(){
+        return $this->hasMany(profile::class);
+    }
 }
