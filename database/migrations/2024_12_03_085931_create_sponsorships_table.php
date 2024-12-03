@@ -15,10 +15,11 @@ return new class extends Migration
 
         Schema::create('sponsorships', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->time('duration');
-            $table->integer('price');
+            $table->string('name', 50);
+            $table->integer('duration'); // Duration in hours
+            $table->decimal('price', 8, 2); // Price with 2 decimal places
             $table->text('description');
+            $table->timestamps();
         });
 
         Schema::enableForeignKeyConstraints();
