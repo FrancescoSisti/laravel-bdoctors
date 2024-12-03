@@ -2,35 +2,36 @@
 
 namespace Database\Seeders;
 
+use App\Models\Message;
+use App\Models\Profile;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Faker\Generator as Faker;
+
 
 class MessageSeeder extends Seeder
 {
     /**
      * Run the database seeds.
      */
-    public function run(): void
+    public function run(Faker $faker): void
     {
-        $table->id();
-        $table->bigInteger('profile_id')->primary();
-        $table->foreign('profile_id')->references('id')->on('profiles');
-        $table->text('content');
-        $table->string('email', 50);
-        $table->string('first_name', 50);
-        $table->string('last_name', 50);
+        $profileIds = Profile::all()->pluck("id");
 
 
-    }
-    $specializationIds = Specialization::all()->pluck("id");
+        foreach($profileIds as $profileId) {
 
-    for($i = 0; $i < 250; $i++) {
-        $newUser = new User();
-        $newUser->specialization_id = $faker->randomElement($specializationIds);
-        $newUser->first_name = $faker->firstName();
-        $newUser->last_name = $faker->unique()->lastName();
-        $newUser->email = $faker->email();
-        $newUser->addres = $faker->streetAddress();
-        $newUser->save();
+            for($i = 0; $i < $faker->rand(1,3); $i++ ) {
+
+                $newMessage = new Message();
+                $newMessage->profile_id = $profileId;
+                $newMessage->content = $faker->realTextBetween(50,200);
+                $newMessage->email = $faker->email();
+                $newMessage->first_name = $faker->firstName();
+                $newMessage->last_name = $faker->unique()->lastName();
+                $newMessage->save();
+            }
+
+        }
     }
 }

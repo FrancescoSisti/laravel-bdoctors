@@ -42,7 +42,11 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
-    public function specialization(){
-        return $this->belongsTo(Specialization::class);
+    public function specializations(){
+        return $this->hasMany(Specialization::class);
+    }
+
+    public function profiles(){
+        return $this->belongsTo(Profile::class);
     }
 }
