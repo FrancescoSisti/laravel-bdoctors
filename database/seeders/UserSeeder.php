@@ -1,0 +1,31 @@
+<?php
+
+namespace Database\Seeders;
+
+use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use Illuminate\Database\Seeder;
+use App\Models\User;
+use App\Models\Specialization;
+use Faker\Generator as Faker;
+//use Faker\Provider\it_IT as Faker;
+
+class UserSeeder extends Seeder
+{
+    /**
+     * Run the database seeds.
+     */
+    public function run(Faker $faker): void
+    {
+        $specializationIds = Specialization::all()->pluck("id");
+
+        for($i = 0; $i < 250; $i++) {
+            $newUser = new User();
+            $newUser->specialization_id = $faker->randomElement($specializationIds);
+            $newUser->first_name = $faker->firstName();
+            $newUser->last_name = $faker->unique()->lastName();
+            $newUser->email = $faker->email();
+            $newUser->addres = $faker->streetAddress();
+            $newUser->save();
+        }
+    }
+}
