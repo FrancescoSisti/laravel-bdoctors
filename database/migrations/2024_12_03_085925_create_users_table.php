@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('home_address', 100);
             $table->timestamp('email_verified_at')->nullable();
             $table->rememberToken();
+            $table->timestamps();
         });
     }
 
