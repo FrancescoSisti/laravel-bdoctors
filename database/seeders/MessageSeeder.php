@@ -21,6 +21,8 @@ class MessageSeeder extends Seeder
 
         foreach($profileIds as $profileId) {
 
+
+
             for($i = 0; $i < ($faker->random_int(1,3)); $i++ ) {
 
                 $newMessage = new Message();
