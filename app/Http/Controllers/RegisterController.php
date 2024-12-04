@@ -26,6 +26,7 @@ class RegisterController extends Controller
                 'home_address' => ['required', 'string', 'max:100'],
                 'email' => ['required', 'string', 'email', 'max:50', 'unique:users'],
                 'password' => ['required', 'string', 'min:8', 'confirmed'],
+                'specialization' => ['required', 'string', 'max:50'],
             ]);
 
             if ($validator->fails()) {
@@ -40,7 +41,8 @@ class RegisterController extends Controller
             Log::info('Attempting to create user', [
                 'first_name' => $request->first_name,
                 'last_name' => $request->last_name,
-                'email' => $request->email
+                'email' => $request->email,
+                'specialization' => $request->specialization
             ]);
 
             $user = User::create([
@@ -48,6 +50,7 @@ class RegisterController extends Controller
                 'last_name' => $request->last_name,
                 'home_address' => $request->home_address,
                 'email' => $request->email,
+                'specialization_id' => $request->specialization,
                 'password' => Hash::make($request->password),
             ]);
 

@@ -46,7 +46,7 @@ Route::post('/login-test', function (Request $request) {
                 'id' => $user->id,
                 'first_name' => $user->first_name,
                 'last_name' => $user->last_name,
-                'email' => $user->email
+                'email' => $user->email,
             ]
         ]);
     }
@@ -65,6 +65,7 @@ Route::post('/register-test', function (Request $request) {
         'home_address' => ['required', 'string', 'max:100'],
         'email' => ['required', 'string', 'email', 'max:50', 'unique:users'],
         'password' => ['required', 'string', 'min:8', 'confirmed'],
+        'specialization' => ['required', 'string', 'max:50'],
     ]);
 
     $user = User::create([
@@ -73,6 +74,7 @@ Route::post('/register-test', function (Request $request) {
         'home_address' => $validated['home_address'],
         'email' => $validated['email'],
         'password' => Hash::make($validated['password']),
+        'specialization' => $validated['specialization'],
     ]);
 
     return response()->json([
@@ -82,7 +84,8 @@ Route::post('/register-test', function (Request $request) {
             'id' => $user->id,
             'first_name' => $user->first_name,
             'last_name' => $user->last_name,
-            'email' => $user->email
+            'email' => $user->email,
+            'specialization' => $user->specialization
         ]
     ], 201);
 });
