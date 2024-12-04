@@ -19,41 +19,41 @@ class LoginController extends Controller
     public function login(Request $request)
     {
         try {
-            $validator = Validator::make($request->all(), [
-                'email' => ['required', 'string', 'email'],
-                'password' => ['required', 'string'],
+            $validated = $request->validate([
+                'email' => ['required', 'string', 'email', 'max:50', 'exists:users,email'],
+                'password' => ['required', 'string', 'min:8'],
             ]);
 
-            if ($validator->fails()) {
-                Log::error('Login validation failed', ['errors' => $validator->errors()]);
-                return response()->json([
-                    'message' => 'Validation failed',
-                    'errors' => $validator->errors()
-                ], 422);
-            }
-
-            if (!Auth::attempt($request->only('email', 'password'))) {
+            if (!Auth::attempt($validated)) {
                 Log::warning('Failed login attempt', ['email' => $request->email]);
                 return response()->json([
                     'message' => 'Invalid credentials'
                 ], 401);
             }
 
-            $user = User::where('email', $request->email)->firstOrFail();
-            $token = $user->createToken('auth-token')->plainTextToken;
+            $user = Auth::user();
 
             Log::info('User logged in successfully', ['user_id' => $user->id]);
 
             return response()->json([
                 'message' => 'Login successful',
-                'user' => $user,
-                'token' => $token
-            ]);
+                'user' => $user
+            ], 200);
 
-        } catch (\Exception $e) {
-            Log::error('Login error', ['error' => $e->getMessage()]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            Log::error('Login validation failed', ['errors' => $e->errors()]);
             return response()->json([
-                'message' => 'An error occurred during login'
+                'message' => 'Validation failed',
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            Log::error('Login error', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            return response()->json([
+                'message' => 'An error occurred during login',
+                'error' => $e->getMessage()
             ], 500);
         }
     }
@@ -67,17 +67,37 @@ class LoginController extends Controller
     public function logout(Request $request)
     {
         try {
-            $request->user()->currentAccessToken()->delete();
+            $validator = Validator::make($request->all(), [
+                'token' => ['required', 'string']
+            ]);
 
-            Log::info('User logged out successfully', ['user_id' => $request->user()->id]);
+            if ($validator->fails()) {
+                return response()->json([
+                    'message' => 'Validation failed',
+                    'errors' => $validator->errors()
+                ], 422);
+            }
+
+            $user = $request->user();
+
+            Auth::guard('web')->logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
+            Log::info('User logged out successfully', ['user_id' => $user->id]);
 
             return response()->json([
                 'message' => 'Logged out successfully'
-            ]);
+            ], 200);
+
         } catch (\Exception $e) {
-            Log::error('Logout error', ['error' => $e->getMessage()]);
+            Log::error('Logout error', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
             return response()->json([
-                'message' => 'An error occurred during logout'
+                'message' => 'An error occurred during logout',
+                'error' => $e->getMessage()
             ], 500);
         }
     }
