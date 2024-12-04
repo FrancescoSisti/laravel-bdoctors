@@ -64,7 +64,7 @@ class RegisterController extends Controller
             'home_address' => ['required', 'string', 'max:100'],
             'email' => ['required', 'string', 'email', 'max:50', 'unique:users'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
-            'specialization' => ['required', 'string', 'max:50'],
+            'specialization_id' => ['required', 'exists:specializations,id'],
         ]);
     }
 
@@ -84,7 +84,7 @@ class RegisterController extends Controller
             'last_name' => $data['last_name'],
             'home_address' => $data['home_address'],
             'email' => $data['email'],
-            'specialization_id' => $data['specialization'],
+            'specialization_id' => $data['specialization_id'],
             'password' => Hash::make($data['password']),
         ]);
 
