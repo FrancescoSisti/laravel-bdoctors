@@ -15,63 +15,27 @@ class RegisterController extends Controller
      * Handle a registration request.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @return \Laravel\Fortify\Contracts\RegisterResponse
+     * @return \Illuminate\Http\JsonResponse
      */
     public function register(Request $request)
     {
         try {
-            $validator = Validator::make($request->all(), [
-                'first_name' => ['required', 'string', 'max:50'],
-                'last_name' => ['required', 'string', 'max:50'],
-                'home_address' => ['required', 'string', 'max:100'],
-                'email' => ['required', 'string', 'email', 'max:50', 'unique:users'],
-                'password' => ['required', 'string', 'min:8', 'confirmed'],
-                'specialization' => ['required', 'string', 'max:50'],
-            ]);
+            $validated = $this->validateRegistrationData($request);
 
-            if ($validator->fails()) {
-                Log::error('Registration validation failed', ['errors' => $validator->errors()]);
-                return response()->json([
-                    'message' => 'Validation failed',
-                    'errors' => $validator->errors()
-                ], 422);
-            }
+            $user = $this->createUser($validated);
 
-            // Log the validated data (except password)
-            Log::info('Attempting to create user', [
-                'first_name' => $request->first_name,
-                'last_name' => $request->last_name,
-                'email' => $request->email,
-                'specialization' => $request->specialization
-            ]);
-
-            $user = User::create([
-                'first_name' => $request->first_name,
-                'last_name' => $request->last_name,
-                'home_address' => $request->home_address,
-                'email' => $request->email,
-                'specialization_id' => $request->specialization,
-                'password' => Hash::make($request->password),
-            ]);
-
-            if (!$user) {
-                Log::error('Failed to create user');
-                return response()->json([
-                    'message' => 'Failed to create user'
-                ], 500);
-            }
-
-            Log::info('User created successfully', ['user_id' => $user->id]);
-
-            // Create token for the new user
             $token = $user->createToken('auth-token')->plainTextToken;
 
-            return response()->json([
-                'message' => 'User registered successfully',
-                'user' => $user,
-                'token' => $token
-            ], 201);
+            Log::info('User registered successfully', ['user_id' => $user->id]);
 
+            return $this->successResponse($user, $token);
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            Log::error('Registration validation failed', ['errors' => $e->errors()]);
+            return response()->json([
+                'message' => 'Validation failed',
+                'errors' => $e->errors()
+            ], 422);
         } catch (\Exception $e) {
             Log::error('Registration failed', [
                 'error' => $e->getMessage(),
@@ -83,5 +47,67 @@ class RegisterController extends Controller
                 'error' => $e->getMessage()
             ], 500);
         }
+    }
+
+    /**
+     * Validate registration data
+     *
+     * @param Request $request
+     * @return array
+     * @throws \Illuminate\Validation\ValidationException
+     */
+    private function validateRegistrationData(Request $request)
+    {
+        return $request->validate([
+            'first_name' => ['required', 'string', 'max:50'],
+            'last_name' => ['required', 'string', 'max:50'],
+            'home_address' => ['required', 'string', 'max:100'],
+            'email' => ['required', 'string', 'email', 'max:50', 'unique:users'],
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
+            'specialization' => ['required', 'string', 'max:50'],
+        ]);
+    }
+
+    /**
+     * Create a new user
+     *
+     * @param array $data
+     * @return User
+     * @throws \Exception
+     */
+    private function createUser(array $data)
+    {
+        Log::info('Attempting to create user', array_diff_key($data, ['password' => '']));
+
+        $user = User::create([
+            'first_name' => $data['first_name'],
+            'last_name' => $data['last_name'],
+            'home_address' => $data['home_address'],
+            'email' => $data['email'],
+            'specialization_id' => $data['specialization'],
+            'password' => Hash::make($data['password']),
+        ]);
+
+        if (!$user) {
+            throw new \Exception('Failed to create user');
+        }
+
+        return $user;
+    }
+
+    /**
+     * Return success response
+     *
+     * @param User $user
+     * @param string $token
+     * @return \Illuminate\Http\JsonResponse
+     */
+    private function successResponse(User $user, string $token)
+    {
+        return response()->json([
+            'message' => 'User registered successfully',
+            'user' => $user,
+            'token' => $token
+        ], 201);
     }
 }

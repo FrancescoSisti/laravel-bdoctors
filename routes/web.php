@@ -16,7 +16,7 @@ use App\Http\Controllers\HomeController;
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    return '<html><body><h1>Project is Active</h1><p>The application is up and running.</p></body></html>';
 });
 
 // Authentication Routes
