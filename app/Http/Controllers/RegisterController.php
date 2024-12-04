@@ -92,6 +92,8 @@ class RegisterController extends Controller
             throw new \Exception('Failed to create user');
         }
 
+        $user->load('specialization');
+
         return $user;
     }
 

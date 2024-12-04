@@ -24,6 +24,7 @@ class User extends Authenticatable
         'home_address',
         'email',
         'password',
+        'specialization_id'
     ];
 
     /**
@@ -56,5 +57,10 @@ class User extends Authenticatable
     public function profile()
     {
         return $this->belongsTo(Profile::class);
+    }
+
+    public function specialization()
+    {
+        return $this->belongsTo(Specialization::class);
     }
 }
