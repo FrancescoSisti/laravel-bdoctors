@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\RegisterController;
+use App\Http\Controllers\ShowController;
 use App\Models\Specialization;
 
 /*
@@ -28,6 +29,9 @@ Route::get('/specializations', function () {
         'specializations' => $specializations
     ]);
 })->name('api.specializations');
+
+// Profile routes
+Route::get('/profiles/{id}', [ShowController::class, 'show'])->name('api.profiles.show');
 
 // Protected routes
 Route::middleware('auth:sanctum')->group(function () {
