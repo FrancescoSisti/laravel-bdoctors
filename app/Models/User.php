@@ -48,11 +48,13 @@ class User extends Authenticatable
         'two_factor_confirmed_at' => 'datetime',
     ];
 
-    public function specializations(){
+    public function specializations()
+    {
         return $this->belongsToMany(Specialization::class);
     }
 
-    public function profile(){
+    public function profile()
+    {
         return $this->belongsTo(Profile::class);
     }
 }
