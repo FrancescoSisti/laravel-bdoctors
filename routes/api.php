@@ -32,7 +32,7 @@ Route::get('/specializations', function () {
 // Protected routes
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', function (Request $request) {
-        return $request->user();
+        return $request->user()->load('specialization');
     });
 
     Route::post('/logout', [AuthController::class, 'logout'])->name('api.logout');

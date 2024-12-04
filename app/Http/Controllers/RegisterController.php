@@ -84,7 +84,6 @@ class RegisterController extends Controller
             'last_name' => $data['last_name'],
             'home_address' => $data['home_address'],
             'email' => $data['email'],
-            'specialization_id' => $data['specialization_id'],
             'password' => Hash::make($data['password']),
         ]);
 
@@ -92,7 +91,9 @@ class RegisterController extends Controller
             throw new \Exception('Failed to create user');
         }
 
-        $user->load('specialization');
+        $user->specializations()->attach($data['specialization_id']);
+
+        $user->load('specializations');
 
         return $user;
     }
