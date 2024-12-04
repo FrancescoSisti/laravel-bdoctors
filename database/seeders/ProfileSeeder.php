@@ -23,8 +23,8 @@ class ProfileSeeder extends Seeder
             $newProfile->user_id = $userId;
             $newProfile->curriculum = $faker->realTextBetween(200,1000);
             $newProfile->photo = $faker->imageUrl();
-            $newProfile->office_address = $faker->city();
-            $newProfile->phone = '+39'. $faker->phoneNumber();
+            $newProfile->office_address = $faker->streetAddress();
+            $newProfile->phone = $faker->phoneNumber();
             $newProfile->services = $faker->realTextBetween(30,100);
             $newProfile->save();
         }
