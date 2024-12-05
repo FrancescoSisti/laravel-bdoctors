@@ -25,9 +25,6 @@ use App\Models\Specialization;
 Route::post('/login', [AuthController::class, 'login'])->name('api.login');
 Route::post('/register', [RegisterController::class, 'register'])->name('api.register');
 
-//Route for edit profile
-Route::get('/profiles/edit/{id}',[EditProfileController::class, 'edit'])->name('api.profiles.edit');
-
 // Specializations route
 Route::get('/specializations', function () {
     $specializations = Specialization::select('id', 'name')->get();
