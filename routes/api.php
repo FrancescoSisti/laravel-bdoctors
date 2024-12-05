@@ -3,11 +3,10 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\EditProfileController;
 use App\Http\Controllers\RegisterController;
-use App\Http\Controllers\ShowController;
-use App\Http\Controllers\CreateController;
-use App\Http\Controllers\EditController;
+use App\Http\Controllers\Api\ShowController;
+use App\Http\Controllers\Api\CreateController;
+use App\Http\Controllers\Api\EditController;
 use App\Models\Specialization;
 
 /*
@@ -41,7 +40,7 @@ Route::get('/profiles/edit/{id}', [EditController::class, 'edit'])->name('api.pr
 // Protected routes
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', function (Request $request) {
-        return $request->user()->load('specialization');
+        return $request->user()->load('specializations');
     });
 
     Route::post('/logout', [AuthController::class, 'logout'])->name('api.logout');
