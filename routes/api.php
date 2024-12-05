@@ -36,7 +36,7 @@ Route::get('/specializations', function () {
 // Profile routes
 Route::get('/profiles/{id}', [ShowController::class, 'show'])->name('api.profiles.show');
 Route::post('/profiles', [CreateController::class, 'create'])->name('api.profiles.create');
-Route::get('/profiles/edit/{id}', [EditController::class. 'edit'])->name('api.profiles.edit');
+Route::get('/profiles/edit/{id}', [EditController::class, 'edit'])->name('api.profiles.edit');
 
 // Protected routes
 Route::middleware('auth:sanctum')->group(function () {
