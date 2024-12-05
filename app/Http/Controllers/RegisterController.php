@@ -62,7 +62,14 @@ class RegisterController extends Controller
             'first_name' => ['required', 'string', 'max:50'],
             'last_name' => ['required', 'string', 'max:50'],
             'home_address' => ['required', 'string', 'max:100'],
-            'email' => ['required', 'string', 'email', 'max:50', 'unique:users'],
+            'email' => [
+                'required',
+                'string',
+                'email',
+                'max:50',
+                'unique:users',
+                'regex:/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.(com|it|org|net|edu|gov)$/'
+            ],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
             'specialization_id' => ['required', 'exists:specializations,id'],
         ]);
