@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\EditProfileController;
 use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\ShowController;
 use App\Models\Specialization;
@@ -21,6 +22,9 @@ use App\Models\Specialization;
 // Public routes
 Route::post('/login', [AuthController::class, 'login'])->name('api.login');
 Route::post('/register', [RegisterController::class, 'register'])->name('api.register');
+
+//Route for edit profile
+Route::get('/profile/edit/{id}',[EditProfileController::class, 'edit'])->name('api.profiles.edit');
 
 // Specializations route
 Route::get('/specializations', function () {
