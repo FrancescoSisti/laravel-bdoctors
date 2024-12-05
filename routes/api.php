@@ -7,6 +7,8 @@ use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\Api\ShowController;
 use App\Http\Controllers\Api\CreateController;
 use App\Http\Controllers\Api\EditController;
+use App\Http\Controllers\Api\RegisterController as ApiRegisterController;
+use App\Http\Controllers\Auth\RegisterController as AuthRegisterController;
 use App\Models\Specialization;
 
 /*
@@ -22,7 +24,7 @@ use App\Models\Specialization;
 
 // Public routes
 Route::post('/login', [AuthController::class, 'login'])->name('api.login');
-Route::post('/register', [RegisterController::class, 'register'])->name('api.register');
+Route::post('/register', [ApiRegisterController::class, 'register'])->name('api.register');
 
 // Specializations route
 Route::get('/specializations', function () {
