@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\ShowController;
+use App\Http\Controllers\CreateController;
 use App\Models\Specialization;
 
 /*
@@ -32,6 +33,7 @@ Route::get('/specializations', function () {
 
 // Profile routes
 Route::get('/profiles/{id}', [ShowController::class, 'show'])->name('api.profiles.show');
+Route::post('/profiles', [CreateController::class, 'create'])->name('api.profiles.create');
 
 // Protected routes
 Route::middleware('auth:sanctum')->group(function () {
