@@ -7,6 +7,7 @@ use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\Api\ShowController;
 use App\Http\Controllers\Api\CreateController;
 use App\Http\Controllers\Api\EditController;
+use App\Http\Controllers\Api\IndexController;
 use App\Http\Controllers\Api\RegisterController as ApiRegisterController;
 use App\Http\Controllers\Api\UpdateController;
 use App\Http\Controllers\Auth\RegisterController as AuthRegisterController;
@@ -36,6 +37,7 @@ Route::get('/specializations', function () {
 })->name('api.specializations');
 
 // Profile routes
+Route::get('/profiles', [IndexController::class, 'index'])->name('api.profiles.index');
 Route::get('/profiles/{id}', [ShowController::class, 'show'])->name('api.profiles.show');
 Route::post('/profiles', [CreateController::class, 'create'])->name('api.profiles.create');
 Route::get('/profiles/edit/{id}', [EditController::class, 'edit'])->name('api.profiles.edit');
