@@ -22,21 +22,19 @@ use App\Models\Specialization;
 |
 */
 
-// Public routes
-Route::get('/sanctum/csrf-cookie', function () {
-    return response()->json(['message' => 'CSRF cookie set']);
+// Public routes (no CSRF or auth required)
+Route::middleware('api')->group(function () {
+    Route::post('/login', [LoginController::class, 'login'])->name('api.login');
+    Route::post('/register', [RegisterController::class, 'register'])->name('api.register');
+    Route::get('/specializations', function () {
+        return response()->json([
+            'specializations' => Specialization::select('id', 'name')->orderBy('name')->get()
+        ]);
+    })->name('api.specializations');
 });
 
-Route::post('/login', [LoginController::class, 'login'])->name('api.login');
-Route::post('/register', [RegisterController::class, 'register'])->name('api.register');
-Route::get('/specializations', function () {
-    return response()->json([
-        'specializations' => Specialization::select('id', 'name')->orderBy('name')->get()
-    ]);
-})->name('api.specializations');
-
 // Protected routes
-Route::middleware('auth:sanctum')->group(function () {
+Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/user', function (Request $request) {
         return response()->json([
             'success' => true,
@@ -44,10 +42,11 @@ Route::middleware('auth:sanctum')->group(function () {
         ]);
     })->name('api.user');
 
-    Route::post('/logout', [AuthController::class, 'logout'])->name('api.logout');
+    Route::post('/logout', [LoginController::class, 'logout'])->name('api.logout');
 
     // Profile routes
     Route::get('/profiles/{id}', [ShowController::class, 'show'])->name('api.profiles.show');
+    Route::get('/profiles/create/data', [CreateController::class, 'getData'])->name('api.profiles.create.data');
     Route::post('/profiles', [CreateController::class, 'create'])->name('api.profiles.create');
     Route::get('/profiles/edit/{id}', [EditController::class, 'edit'])->name('api.profiles.edit');
     Route::put('/profiles/{id}', [UpdateController::class, 'update'])->name('api.profiles.update');

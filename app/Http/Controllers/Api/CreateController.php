@@ -73,4 +73,58 @@ class CreateController extends Controller
             ], 500);
         }
     }
+
+    /**
+     * Get data needed for profile creation
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getData()
+    {
+        try {
+            $user = User::with('specializations')->findOrFail(Auth::id());
+
+            // Check if user already has a profile
+            if ($user->profile) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'User already has a profile'
+                ], 400);
+            }
+
+            $responseData = [
+                'user' => [
+                    'id' => $user->id,
+                    'first_name' => $user->first_name,
+                    'last_name' => $user->last_name,
+                    'email' => $user->email,
+                    'specializations' => $user->specializations->map(function($spec) {
+                        return [
+                            'id' => $spec->id,
+                            'name' => $spec->name
+                        ];
+                    })->values()->all()
+                ]
+            ];
+
+            Log::info('Profile creation data retrieved successfully', ['user_id' => $user->id]);
+
+            return response()->json([
+                'success' => true,
+                'data' => $responseData
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Failed to retrieve profile creation data', [
+                'user_id' => Auth::id(),
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred while retrieving profile creation data'
+            ], 500);
+        }
+    }
 }
