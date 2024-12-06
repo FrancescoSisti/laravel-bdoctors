@@ -48,7 +48,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     // Profile routes
     Route::prefix('profiles')->group(function () {
         Route::post('/', [CreateController::class, 'create'])->name('api.profiles.create');
-        Route::get('/edit/{id}', [EditController::class, 'edit'])->name('api.profiles.edit');
+        Route::get('/{id}/edit', [EditController::class, 'edit'])->name('api.profiles.edit');
         Route::put('/{id}', [UpdateController::class, 'update'])->name('api.profiles.update');
     });
 });

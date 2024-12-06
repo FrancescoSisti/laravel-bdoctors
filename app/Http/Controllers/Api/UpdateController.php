@@ -39,7 +39,6 @@ class UpdateController extends Controller
                 'last_name' => 'required|string|max:50',
                 'email' => 'required|email|max:50|unique:users,email,' . $profile->user->id,
                 'specializations' => 'required|array|min:1',
-                'specializations.*' => 'exists:specializations,id'
             ]);
 
             if ($validator->fails()) {
@@ -49,35 +48,44 @@ class UpdateController extends Controller
                 ], 422);
             }
 
-            // Update profile
-            $profile->update($validator->safe()->only([
-                'curriculum',
-                'photo',
-                'office_address',
-                'phone',
-                'services'
-            ]));
+            DB::beginTransaction();
+            try {
+                // Update profile
+                $profile->update($validator->safe()->only([
+                    'curriculum',
+                    'photo',
+                    'office_address',
+                    'phone',
+                    'services'
+                ]));
 
-            // Update user
-            $profile->user->update($validator->safe()->only([
-                'first_name',
-                'last_name',
-                'email'
-            ]));
+                // Update user
+                $profile->user->update($validator->safe()->only([
+                    'first_name',
+                    'last_name',
+                    'email'
+                ]));
 
-            // Update specializations
-            $profile->user->specializations()->sync($request->specializations);
+                // Update specializations
+                $profile->user->specializations()->sync($request->specializations);
 
-            Log::info('Profile updated successfully', [
-                'profile_id' => $id,
-                'user_id' => $profile->user_id
-            ]);
+                DB::commit();
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Profile updated successfully',
-                'data' => $profile->fresh(['user.specializations'])
-            ]);
+                Log::info('Profile updated successfully', [
+                    'profile_id' => $id,
+                    'user_id' => $profile->user_id
+                ]);
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Profile updated successfully',
+                    'data' => $profile->fresh(['user.specializations'])
+                ]);
+
+            } catch (\Exception $e) {
+                DB::rollBack();
+                throw $e;
+            }
 
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             Log::warning('Profile not found for update', ['profile_id' => $id]);
