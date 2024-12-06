@@ -28,7 +28,6 @@ Route::post('/register', [RegisterController::class, 'register'])->name('api.reg
 Route::get('/specializations', function () {
     $specializations = Specialization::select('id', 'name')->orderBy('name')->get();
     return response()->json([
-        'success' => true,
         'data' => $specializations
     ]);
 })->name('api.specializations');
