@@ -87,7 +87,6 @@ class EditController extends Controller
                 'last_name' => 'required|string|max:255',
                 'email' => 'required|email|unique:users,email,' . $profile->user->id,
                 'specializations' => 'required|array',
-                'specializations.*' => 'exists:specializations,id'
             ]);
 
             if ($profileValidator->fails() || $userValidator->fails()) {
