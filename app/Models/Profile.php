@@ -9,6 +9,11 @@ class Profile extends Model
 {
     use HasFactory;
 
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array<string>
+     */
     protected $fillable = [
         'user_id',
         'curriculum',
@@ -18,15 +23,36 @@ class Profile extends Model
         'services'
     ];
 
-    public function user(){
+    /**
+     * Get the user that owns the profile.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function user()
+    {
         return $this->belongsTo(User::class);
     }
 
-    public function messages(){
+    /**
+     * Get the messages for the profile.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function messages()
+    {
         return $this->hasMany(Message::class);
     }
 
-    public function sponsorships(){
-        return $this->belongsToMany(Sponsorship::class);
+    /**
+     * Get the sponsorships for the profile.
+     * Includes pivot table data for start_date and end_date.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function sponsorships()
+    {
+        return $this->belongsToMany(Sponsorship::class)
+            ->withPivot(['start_date', 'end_date'])
+            ->withTimestamps();
     }
 }

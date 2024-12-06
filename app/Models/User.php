@@ -48,18 +48,23 @@ class User extends Authenticatable
         'two_factor_confirmed_at' => 'datetime',
     ];
 
+    /**
+     * Get the specializations associated with the user.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
     public function specializations()
     {
         return $this->belongsToMany(Specialization::class);
     }
 
+    /**
+     * Get the profile associated with the user.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
     public function profile()
     {
-        return $this->belongsTo(Profile::class);
-    }
-
-    public function specialization()
-    {
-        return $this->belongsTo(Specialization::class);
+        return $this->hasOne(Profile::class);
     }
 }
