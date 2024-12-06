@@ -20,18 +20,6 @@ class CreateController extends Controller
     public function create(Request $request)
     {
         try {
-            // Verify that the authenticated user matches the requested user_id
-            if ($request->user_id !== auth()->id()) {
-                Log::warning('Unauthorized profile creation attempt', [
-                    'requested_user_id' => $request->user_id,
-                    'authenticated_user_id' => auth()->id()
-                ]);
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Unauthorized to create profile for this user'
-                ], 403);
-            }
-
             // Check if user already has a profile
             if (Profile::where('user_id', $request->user_id)->exists()) {
                 Log::warning('Duplicate profile creation attempt', [
@@ -115,7 +103,7 @@ class CreateController extends Controller
             'curriculum' => ['required', 'string', 'min:200', 'max:1000'],
             'photo' => ['required', 'string', 'url'],
             'office_address' => ['required', 'string', 'max:100'],
-            'phone' => ['required', 'string', 'max:20'],
+            'phone' => ['required', 'string', 'max:20', 'regex:/^([0-9\s\-\+\(\)]*)$/'],
             'services' => ['required', 'string', 'min:30', 'max:100'],
         ]);
     }
