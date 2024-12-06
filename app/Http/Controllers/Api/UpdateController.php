@@ -21,7 +21,7 @@ class UpdateController extends Controller
             if ($profile->user_id !== auth()->id()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Unauthorized to update this profile'
+                    'message' => 'Non autorizzato ad aggiornare questo profilo'
                 ], 403);
             }
 
@@ -29,22 +29,41 @@ class UpdateController extends Controller
             $validator = Validator::make($request->all(), [
                 // Profile validation rules
                 'curriculum' => 'nullable|string|max:5000',
-                'photo' => 'nullable|string|max:255',
+                'photo' => 'nullable|string',
                 'office_address' => 'required|string|max:255',
-                'phone' => 'required|string|max:20|regex:/^([0-9\s\-\+\(\)]*)$/',
+                'phone' => ['required', 'string', 'max:20', 'regex:/^([0-9\s\-\+\(\)]*)$/'],
                 'services' => 'nullable|string|max:1000',
 
                 // User validation rules
                 'first_name' => 'required|string|max:50',
                 'last_name' => 'required|string|max:50',
-                'email' => 'required|email|max:50|unique:users,email,' . $profile->user->id,
+                'email' => [
+                    'required',
+                    'string',
+                    'email',
+                    'max:50',
+                    'unique:users,email,' . $profile->user->id,
+                    'regex:/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.(com|it|org|net|edu|gov)$/'
+                ],
                 'specializations' => 'required|array|min:1',
                 'specializations.*' => 'exists:specializations,id'
+            ], [
+                'required' => 'Il campo :attribute è obbligatorio.',
+                'string' => 'Il campo :attribute deve essere una stringa.',
+                'max' => 'Il campo :attribute non può superare :max caratteri.',
+                'email' => 'Il campo :attribute deve essere un indirizzo email valido.',
+                'unique' => 'Questa email è già stata registrata.',
+                'regex' => 'Il formato del campo :attribute non è valido.',
+                'array' => 'Il campo :attribute deve essere un array.',
+                'min' => 'Devi selezionare almeno una specializzazione.',
+                'exists' => 'La specializzazione selezionata non è valida.',
+                'phone.regex' => 'Il numero di telefono non è in un formato valido.'
             ]);
 
             if ($validator->fails()) {
                 return response()->json([
                     'success' => false,
+                    'message' => 'Errori di validazione',
                     'errors' => $validator->errors()->toArray()
                 ], 422);
             }
@@ -55,11 +74,11 @@ class UpdateController extends Controller
             try {
                 // Update profile
                 $profile->update([
-                    'curriculum' => $validatedData['curriculum'] ?? null,
-                    'photo' => $validatedData['photo'] ?? null,
+                    'curriculum' => $validatedData['curriculum'] ?? $profile->curriculum,
+                    'photo' => $validatedData['photo'] ?? $profile->photo,
                     'office_address' => $validatedData['office_address'],
                     'phone' => $validatedData['phone'],
-                    'services' => $validatedData['services'] ?? null
+                    'services' => $validatedData['services'] ?? $profile->services
                 ]);
 
                 // Update user
@@ -74,37 +93,46 @@ class UpdateController extends Controller
 
                 DB::commit();
 
-                Log::info('Profile updated successfully', [
-                    'profile_id' => $id,
-                    'user_id' => $profile->user_id
-                ]);
+                // Reload the model with fresh data and relationships
+                $profile->load(['user', 'user.specializations']);
 
                 return response()->json([
                     'success' => true,
-                    'message' => 'Profile updated successfully',
-                    'data' => $profile->fresh(['user.specializations'])
+                    'message' => 'Profilo aggiornato con successo',
+                    'data' => $profile
                 ]);
 
             } catch (\Exception $e) {
                 DB::rollBack();
-                throw $e;
+                Log::error('Errore durante l\'aggiornamento del profilo', [
+                    'profile_id' => $id,
+                    'error' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString()
+                ]);
+
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Si è verificato un errore durante l\'aggiornamento del profilo',
+                    'error' => $e->getMessage()
+                ], 500);
             }
 
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-            Log::warning('Profile not found for update', ['profile_id' => $id]);
             return response()->json([
                 'success' => false,
-                'message' => 'Profile not found'
+                'message' => 'Profilo non trovato'
             ], 404);
         } catch (\Exception $e) {
-            Log::error('Failed to update profile', [
+            Log::error('Errore durante l\'aggiornamento del profilo', [
                 'profile_id' => $id,
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
+
             return response()->json([
                 'success' => false,
-                'message' => 'An error occurred while updating the profile'
+                'message' => 'Si è verificato un errore durante l\'aggiornamento del profilo',
+                'error' => $e->getMessage()
             ], 500);
         }
     }

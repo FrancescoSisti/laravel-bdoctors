@@ -28,16 +28,16 @@ class LoginController extends Controller
             if (!Auth::attempt($validated)) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Credenziali non valide'
+                    'message' => 'Invalid credentials'
                 ], 401);
             }
 
             $user = User::where('email', $request->email)->firstOrFail();
 
-            // Carica le relazioni necessarie
+            // Load necessary relationships
             $user->load(['specializations', 'profile']);
 
-            // Crea il token
+            // Create token
             $token = $user->createToken('auth-token')->plainTextToken;
 
             return response()->json([
@@ -49,13 +49,17 @@ class LoginController extends Controller
         } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Errore di validazione',
+                'message' => 'Validation error',
                 'errors' => $e->errors()
             ], 422);
         } catch (\Exception $e) {
+            Log::error('Login error', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
             return response()->json([
                 'success' => false,
-                'message' => 'Errore durante il login',
+                'message' => 'Error during login',
                 'error' => $e->getMessage()
             ], 500);
         }
