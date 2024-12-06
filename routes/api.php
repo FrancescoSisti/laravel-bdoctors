@@ -3,7 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\RegisterController;
+use App\Http\Controllers\Api\RegisterController;
 use App\Http\Controllers\Api\ShowController;
 use App\Http\Controllers\Api\CreateController;
 use App\Http\Controllers\Api\EditController;
