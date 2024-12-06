@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use Illuminate\Auth\Middleware\Authenticate as Middleware;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class Authenticate extends Middleware
 {
@@ -21,6 +22,11 @@ class Authenticate extends Middleware
 
     protected function unauthenticated($request, array $guards)
     {
+        Log::error('Authentication failed', [
+            'guards' => $guards,
+            'headers' => $request->headers->all()
+        ]);
+
         abort(response()->json([
             'success' => false,
             'message' => 'Unauthenticated'

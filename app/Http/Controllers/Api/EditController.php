@@ -44,7 +44,7 @@ class EditController extends Controller
             $responseData = [
                 'id' => $profile->id,
                 'curriculum' => $profile->curriculum ?? '',
-                'photo' => $profile->photo ?? '',
+                'photo' => substr($profile->photo ?? '', 0, 255), // Ensure photo doesn't exceed 255 chars
                 'office_address' => $profile->office_address ?? '',
                 'phone' => $profile->phone ?? '',
                 'services' => $profile->services ?? '',

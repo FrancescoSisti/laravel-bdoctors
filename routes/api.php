@@ -36,7 +36,7 @@ Route::get('/specializations', function () {
 })->name('api.specializations');
 
 // Protected routes
-Route::middleware(['auth:sanctum', 'web'])->group(function () {
+Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', function (Request $request) {
         return response()->json([
             'success' => true,

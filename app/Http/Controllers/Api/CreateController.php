@@ -11,11 +11,6 @@ use Illuminate\Support\Facades\Log;
 
 class CreateController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware('auth:sanctum');
-    }
-
     public function create(Request $request)
     {
         try {
@@ -69,8 +64,7 @@ class CreateController extends Controller
         } catch (\Exception $e) {
             Log::error('Failed to create profile', [
                 'user_id' => Auth::id(),
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
+                'error' => $e->getMessage()
             ]);
 
             return response()->json([
