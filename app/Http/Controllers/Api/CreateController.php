@@ -65,7 +65,7 @@ class CreateController extends Controller
             'photo' => ['required', 'string', 'url'],
             'office_address' => ['required', 'string', 'max:100'],
             'phone' => ['required', 'string', 'max:20'],
-            'services' => ['required', 'string', 'min:30', 'max:100'],
+            'services' => ['required', 'string', 'min:5', 'max:100'],
         ]);
     }
 
