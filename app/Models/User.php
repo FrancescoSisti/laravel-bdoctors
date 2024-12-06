@@ -5,10 +5,11 @@ namespace App\Models;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
-    use Notifiable, HasFactory;
+    use HasApiTokens, HasFactory, Notifiable;
 
     /**
      * The attributes that are mass assignable.
@@ -40,6 +41,7 @@ class User extends Authenticatable
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'password' => 'hashed'
     ];
 
     /**
@@ -49,7 +51,7 @@ class User extends Authenticatable
      */
     public function specializations()
     {
-        return $this->belongsToMany(Specialization::class);
+        return $this->belongsToMany(Specialization::class, 'specialization_user');
     }
 
     /**

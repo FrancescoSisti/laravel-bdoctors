@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -27,18 +28,22 @@ class LoginController extends Controller
             if (!Auth::attempt($validated)) {
                 Log::warning('Failed login attempt', ['email' => $request->email]);
                 return response()->json([
+                    'success' => false,
                     'message' => 'Invalid credentials'
                 ], 401);
             }
 
-            $user = Auth::user();
+            $user = User::where('email', $request->email)->firstOrFail();
+            $token = $user->createToken('auth-token')->plainTextToken;
 
             Log::info('User logged in successfully', ['user_id' => $user->id]);
 
             return response()->json([
+                'success' => true,
                 'message' => 'Login successful',
-                'user' => $user
-            ], 200);
+                'user' => $user,
+                'token' => $token
+            ]);
 
         } catch (\Illuminate\Validation\ValidationException $e) {
             Log::error('Login validation failed', ['errors' => $e->errors()]);
@@ -67,18 +72,12 @@ class LoginController extends Controller
     public function logout(Request $request)
     {
         try {
-            $validator = Validator::make($request->all(), [
-                'token' => ['required', 'string']
-            ]);
-
-            if ($validator->fails()) {
-                return response()->json([
-                    'message' => 'Validation failed',
-                    'errors' => $validator->errors()
-                ], 422);
-            }
-
             $user = $request->user();
+            if (!$user) {
+                return response()->json([
+                    'message' => 'Unauthenticated'
+                ], 401);
+            }
 
             Auth::guard('web')->logout();
             $request->session()->invalidate();

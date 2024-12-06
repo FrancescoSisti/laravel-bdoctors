@@ -39,6 +39,7 @@ class UpdateController extends Controller
                 'last_name' => 'required|string|max:50',
                 'email' => 'required|email|max:50|unique:users,email,' . $profile->user->id,
                 'specializations' => 'required|array|min:1',
+                'specializations.*' => 'exists:specializations,id'
             ]);
 
             if ($validator->fails()) {

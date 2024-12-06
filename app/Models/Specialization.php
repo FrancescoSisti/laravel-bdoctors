@@ -25,7 +25,7 @@ class Specialization extends Model
      */
     public function users()
     {
-        return $this->belongsToMany(User::class);
+        return $this->belongsToMany(User::class, 'specialization_user');
     }
 
     /**
@@ -35,6 +35,13 @@ class Specialization extends Model
      */
     public function profiles()
     {
-        return $this->hasManyThrough(Profile::class, User::class);
+        return $this->hasManyThrough(
+            Profile::class,
+            User::class,
+            'id', // Local key on users table
+            'user_id', // Foreign key on profiles table
+            'id', // Local key on specializations table
+            'id' // Foreign key on users table
+        );
     }
 }

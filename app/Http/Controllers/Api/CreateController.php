@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Profile;
@@ -13,7 +13,7 @@ class CreateController extends Controller
 {
     public function __construct()
     {
-        // Remove sanctum middleware
+        $this->middleware('auth:sanctum');
     }
 
     public function create(Request $request)
@@ -41,7 +41,7 @@ class CreateController extends Controller
                 'curriculum' => 'nullable|string|max:5000',
                 'photo' => 'nullable|string|max:255',
                 'office_address' => 'required|string|max:255',
-                'phone' => 'required|string|max:20',
+                'phone' => 'required|string|max:20|regex:/^([0-9\s\-\+\(\)]*)$/',
                 'services' => 'required|string|max:1000'
             ]);
 
