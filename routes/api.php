@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\ShowController;
 use App\Http\Controllers\Api\CreateController;
 use App\Http\Controllers\Api\EditController;
 use App\Http\Controllers\Api\LoginController;
+use App\Http\Controllers\Api\UpdateController;
 use App\Models\Specialization;
 
 /*
@@ -52,7 +53,7 @@ Route::prefix('v1')->group(function () {
         Route::prefix('profiles')->group(function () {
             Route::post('/', [CreateController::class, 'create'])->name('api.profiles.create');
             Route::get('/{id}/edit', [EditController::class, 'edit'])->name('api.profiles.edit');
-            Route::put('/{id}', [EditController::class, 'update'])->name('api.profiles.update');
+            Route::put('/{id}', [UpdateController::class, 'update'])->name('api.profiles.update');
         });
     });
 });
