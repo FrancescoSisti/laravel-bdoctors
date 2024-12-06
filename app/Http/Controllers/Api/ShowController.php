@@ -41,7 +41,7 @@ class ShowController extends Controller
                             'id' => $spec->id,
                             'name' => $spec->name
                         ];
-                    })
+                    })->values()->all()
                 ],
                 'has_active_sponsorship' => $profile->sponsorships->where('pivot.end_date', '>', now())->isNotEmpty()
             ];

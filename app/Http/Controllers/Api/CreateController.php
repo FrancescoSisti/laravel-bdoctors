@@ -20,20 +20,70 @@ class CreateController extends Controller
     public function create(Request $request)
     {
         try {
+            // Verify that the authenticated user matches the requested user_id
+            if ($request->user_id !== auth()->id()) {
+                Log::warning('Unauthorized profile creation attempt', [
+                    'requested_user_id' => $request->user_id,
+                    'authenticated_user_id' => auth()->id()
+                ]);
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Unauthorized to create profile for this user'
+                ], 403);
+            }
+
+            // Check if user already has a profile
+            if (Profile::where('user_id', $request->user_id)->exists()) {
+                Log::warning('Duplicate profile creation attempt', [
+                    'user_id' => $request->user_id
+                ]);
+                return response()->json([
+                    'success' => false,
+                    'message' => 'User already has a profile'
+                ], 409);
+            }
+
             $validated = $this->validateProfileData($request);
 
             $profile = $this->createProfile($validated);
 
+            // Load relationships for response
+            $profile->load(['user.specializations']);
+
+            // Transform the data into a consistent format
+            $responseData = [
+                'id' => $profile->id,
+                'curriculum' => $profile->curriculum,
+                'photo' => $profile->photo,
+                'office_address' => $profile->office_address,
+                'phone' => $profile->phone,
+                'services' => $profile->services,
+                'doctor' => [
+                    'id' => $profile->user->id,
+                    'first_name' => $profile->user->first_name,
+                    'last_name' => $profile->user->last_name,
+                    'email' => $profile->user->email,
+                    'specializations' => $profile->user->specializations->map(function($spec) {
+                        return [
+                            'id' => $spec->id,
+                            'name' => $spec->name
+                        ];
+                    })->values()->all()
+                ]
+            ];
+
             Log::info('Profile created successfully', ['profile_id' => $profile->id]);
 
             return response()->json([
+                'success' => true,
                 'message' => 'Profile created successfully',
-                'profile' => $profile
+                'data' => $responseData
             ], 201);
 
         } catch (\Illuminate\Validation\ValidationException $e) {
             Log::error('Profile creation validation failed', ['errors' => $e->errors()]);
             return response()->json([
+                'success' => false,
                 'message' => 'Validation failed',
                 'errors' => $e->errors()
             ], 422);
@@ -44,6 +94,7 @@ class CreateController extends Controller
             ]);
 
             return response()->json([
+                'success' => false,
                 'message' => 'Profile creation failed',
                 'error' => $e->getMessage()
             ], 500);
