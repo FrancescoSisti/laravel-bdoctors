@@ -17,6 +17,15 @@ class Profile extends Model
 
     protected $with = ['user'];
 
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array
+     */
+    protected $casts = [
+        'photo' => 'string:255'
+    ];
+
     public function user()
     {
         return $this->belongsTo(User::class);
