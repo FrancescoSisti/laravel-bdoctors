@@ -13,7 +13,7 @@ class CreateController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('auth:sanctum');
+        // Remove sanctum middleware
     }
 
     public function create(Request $request)
