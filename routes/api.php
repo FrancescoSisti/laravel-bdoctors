@@ -23,6 +23,10 @@ use App\Models\Specialization;
 */
 
 // Public routes
+Route::get('/sanctum/csrf-cookie', function () {
+    return response()->json(['message' => 'CSRF cookie set']);
+});
+
 Route::post('/login', [LoginController::class, 'login'])->name('api.login');
 Route::post('/register', [RegisterController::class, 'register'])->name('api.register');
 Route::get('/specializations', function () {
@@ -32,7 +36,7 @@ Route::get('/specializations', function () {
 })->name('api.specializations');
 
 // Protected routes
-Route::middleware('auth:sanctum')->group(function () {
+Route::middleware(['auth:sanctum', 'web'])->group(function () {
     Route::get('/user', function (Request $request) {
         return response()->json([
             'success' => true,
