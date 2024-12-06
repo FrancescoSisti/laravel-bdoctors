@@ -45,7 +45,7 @@ class UpdateController extends Controller
                     'unique:users,email,' . $profile->user->id,
                     'regex:/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.(com|it|org|net|edu|gov)$/'
                 ],
-                'specialization_id' => 'required|exists:specializations,id'
+                'specialization_id' => 'required|numeric|exists:specializations,id'
             ], [
                 'required' => 'Il campo :attribute è obbligatorio.',
                 'string' => 'Il campo :attribute deve essere una stringa.',
@@ -54,7 +54,9 @@ class UpdateController extends Controller
                 'unique' => 'Questa email è già stata registrata.',
                 'regex' => 'Il formato del campo :attribute non è valido.',
                 'exists' => 'La specializzazione selezionata non è valida.',
-                'phone.regex' => 'Il numero di telefono non è in un formato valido.'
+                'phone.regex' => 'Il numero di telefono non è in un formato valido.',
+                'numeric' => 'Il campo :attribute deve essere un numero.',
+                'specialization_id.exists' => 'La specializzazione selezionata non esiste nel database.'
             ]);
 
             if ($validator->fails()) {
@@ -86,7 +88,7 @@ class UpdateController extends Controller
                 ]);
 
                 // Update specialization
-                $profile->user->specializations()->sync([$validatedData['specialization_id']]);
+                $profile->user->specializations()->sync([(int)$validatedData['specialization_id']]);
 
                 DB::commit();
 
