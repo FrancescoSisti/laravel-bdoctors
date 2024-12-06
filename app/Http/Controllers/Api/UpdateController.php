@@ -16,7 +16,7 @@ class UpdateController extends Controller
     {
         try {
             // Find profile and verify ownership
-            $profile = Profile::with('user')->findOrFail($id);
+            $profile = Profile::with(['user', 'user.specializations'])->findOrFail($id);
 
             if ($profile->user_id !== auth()->id()) {
                 return response()->json([
@@ -45,30 +45,32 @@ class UpdateController extends Controller
             if ($validator->fails()) {
                 return response()->json([
                     'success' => false,
-                    'errors' => $validator->errors()
+                    'errors' => $validator->errors()->toArray()
                 ], 422);
             }
+
+            $validatedData = $validator->validated();
 
             DB::beginTransaction();
             try {
                 // Update profile
-                $profile->update($validator->safe()->only([
-                    'curriculum',
-                    'photo',
-                    'office_address',
-                    'phone',
-                    'services'
-                ]));
+                $profile->update([
+                    'curriculum' => $validatedData['curriculum'] ?? null,
+                    'photo' => $validatedData['photo'] ?? null,
+                    'office_address' => $validatedData['office_address'],
+                    'phone' => $validatedData['phone'],
+                    'services' => $validatedData['services'] ?? null
+                ]);
 
                 // Update user
-                $profile->user->update($validator->safe()->only([
-                    'first_name',
-                    'last_name',
-                    'email'
-                ]));
+                $profile->user->update([
+                    'first_name' => $validatedData['first_name'],
+                    'last_name' => $validatedData['last_name'],
+                    'email' => $validatedData['email']
+                ]);
 
                 // Update specializations
-                $profile->user->specializations()->sync($request->specializations);
+                $profile->user->specializations()->sync($validatedData['specializations']);
 
                 DB::commit();
 
