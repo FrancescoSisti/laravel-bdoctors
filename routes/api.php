@@ -1,12 +1,13 @@
 <?php
 
-use App\Http\Controllers\Api\CreateController;
-use App\Http\Controllers\Api\EditController;
-use App\Http\Controllers\Api\LoginController;
-use App\Http\Controllers\Api\RegisterController;
-use App\Http\Controllers\Api\ShowController;
-use App\Http\Controllers\Api\UpdateController;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\EditProfileController;
+use App\Http\Controllers\RegisterController;
+use App\Http\Controllers\ShowController;
+use App\Http\Controllers\CreateController;
+use App\Http\Controllers\EditController;
 use App\Models\Specialization;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -44,5 +45,13 @@ Route::post('/register', [RegisterController::class, 'register'])->name('api.reg
 // Profile routes
 Route::get('/profiles/{id}', [ShowController::class, 'show'])->name('api.profiles.show');
 Route::post('/profiles', [CreateController::class, 'create'])->name('api.profiles.create');
-Route::get('/profiles/{id}/edit', [EditController::class, 'edit'])->name('api.profiles.edit');
-Route::put('/profiles/{id}', [UpdateController::class, 'update'])->name('api.profiles.update');
+Route::get('/profiles/edit/{id}', [EditController::class, 'edit'])->name('api.profiles.edit');
+
+// Protected routes
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/user', function (Request $request) {
+        return $request->user()->load('specialization');
+    });
+
+    Route::post('/logout', [AuthController::class, 'logout'])->name('api.logout');
+});
