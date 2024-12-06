@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 
 class ShowController extends Controller
 {
@@ -19,11 +20,28 @@ class ShowController extends Controller
     public function show($id)
     {
         try {
-            // Load profile with user and specializations in a single query
-            $profile = Profile::with(['user.specializations', 'messages', 'sponsorships'])
-                ->findOrFail($id);
+            // Verifica se l'utente è autenticato
+            if (!Auth::check()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Non autorizzato'
+                ], 401);
+            }
 
-            // Transform the data into a cleaner format
+            // Cerca prima l'utente e poi il profilo associato
+            $user = User::with(['profile', 'specializations'])->findOrFail($id);
+            $profile = $user->profile;
+
+            if (!$profile) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Profilo non trovato'
+                ], 404);
+            }
+
+            // Carica le relazioni necessarie
+            $profile->load(['messages', 'sponsorships']);
+
             $responseData = [
                 'id' => $profile->id,
                 'curriculum' => $profile->curriculum,
@@ -32,11 +50,11 @@ class ShowController extends Controller
                 'phone' => $profile->phone,
                 'services' => $profile->services,
                 'doctor' => [
-                    'id' => $profile->user->id,
-                    'first_name' => $profile->user->first_name,
-                    'last_name' => $profile->user->last_name,
-                    'email' => $profile->user->email,
-                    'specializations' => $profile->user->specializations->map(function($spec) {
+                    'id' => $user->id,
+                    'first_name' => $user->first_name,
+                    'last_name' => $user->last_name,
+                    'email' => $user->email,
+                    'specializations' => $user->specializations->map(function($spec) {
                         return [
                             'id' => $spec->id,
                             'name' => $spec->name
@@ -46,28 +64,25 @@ class ShowController extends Controller
                 'has_active_sponsorship' => $profile->sponsorships->where('pivot.end_date', '>', now())->isNotEmpty()
             ];
 
-            Log::info('Profile retrieved successfully', ['profile_id' => $id]);
-
             return response()->json([
                 'success' => true,
                 'data' => $responseData
-            ], 200);
+            ]);
 
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-            Log::warning('Profile not found', ['profile_id' => $id]);
             return response()->json([
                 'success' => false,
-                'message' => 'The requested profile could not be found'
+                'message' => 'Utente o profilo non trovato'
             ], 404);
         } catch (\Exception $e) {
-            Log::error('Failed to retrieve profile', [
-                'profile_id' => $id,
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
+            Log::error('Errore nel recupero del profilo', [
+                'user_id' => $id,
+                'error' => $e->getMessage()
             ]);
+
             return response()->json([
                 'success' => false,
-                'message' => 'An error occurred while retrieving the profile'
+                'message' => 'Si è verificato un errore nel recupero del profilo'
             ], 500);
         }
     }
