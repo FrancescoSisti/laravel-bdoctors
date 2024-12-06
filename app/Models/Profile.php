@@ -3,9 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Profile extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
         'user_id',
         'curriculum',
@@ -20,10 +23,10 @@ class Profile extends Model
     /**
      * The attributes that should be cast.
      *
-     * @var array
+     * @var array<string, string>
      */
     protected $casts = [
-        'photo' => 'string:255'
+        'photo' => 'string'
     ];
 
     public function user()

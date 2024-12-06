@@ -20,7 +20,6 @@ class ShowController extends Controller
     public function show($id)
     {
         try {
-            // Verifica se l'utente è autenticato
             if (!Auth::check()) {
                 return response()->json([
                     'success' => false,
@@ -28,19 +27,20 @@ class ShowController extends Controller
                 ], 401);
             }
 
-            // Cerca prima l'utente e poi il profilo associato
-            $user = User::with(['profile', 'specializations'])->findOrFail($id);
-            $profile = $user->profile;
+            $user = User::with([
+                'profile.messages',
+                'profile.sponsorships',
+                'specializations'
+            ])->findOrFail($id);
 
-            if (!$profile) {
+            if (!$user->profile) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Profilo non trovato'
                 ], 404);
             }
 
-            // Carica le relazioni necessarie
-            $profile->load(['messages', 'sponsorships']);
+            $profile = $user->profile;
 
             $responseData = [
                 'id' => $profile->id,
@@ -61,7 +61,9 @@ class ShowController extends Controller
                         ];
                     })->values()->all()
                 ],
-                'has_active_sponsorship' => $profile->sponsorships->where('pivot.end_date', '>', now())->isNotEmpty()
+                'has_active_sponsorship' => $profile->sponsorships
+                    ->where('pivot.end_date', '>', now())
+                    ->isNotEmpty()
             ];
 
             return response()->json([
