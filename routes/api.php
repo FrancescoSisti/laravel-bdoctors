@@ -22,25 +22,31 @@ use App\Models\Specialization;
 |
 */
 
+// Public routes
 Route::post('/login', [LoginController::class, 'login'])->name('api.login');
 Route::post('/register', [RegisterController::class, 'register'])->name('api.register');
 Route::get('/specializations', function () {
     $specializations = Specialization::select('id', 'name')->orderBy('name')->get();
     return response()->json([
-        'specializations' => $specializations
+        'success' => true,
+        'data' => $specializations
     ]);
 })->name('api.specializations');
 
 Route::get('/profiles/{id}', [ShowController::class, 'show'])->name('api.profiles.show');
-Route::post('/profiles', [CreateController::class, 'create'])->name('api.profiles.create');
-Route::get('/profiles/{id}/edit', [EditController::class, 'edit'])->name('api.profiles.edit');
-Route::put('/profiles/{id}', [UpdateController::class, 'update'])->name('api.profiles.update');
 
-Route::get('/user', function (Request $request) {
-    return response()->json([
-        'success' => true,
-        'data' => $request->user()->load(['specializations', 'profile'])
-    ]);
-})->name('api.user');
+// Protected routes
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/profiles', [CreateController::class, 'create'])->name('api.profiles.create');
+    Route::get('/profiles/{id}/edit', [EditController::class, 'edit'])->name('api.profiles.edit');
+    Route::put('/profiles/{id}', [UpdateController::class, 'update'])->name('api.profiles.update');
 
-Route::post('/logout', [AuthController::class, 'logout'])->name('api.logout');
+    Route::get('/user', function (Request $request) {
+        return response()->json([
+            'success' => true,
+            'data' => $request->user()->load(['specializations', 'profile'])
+        ]);
+    })->name('api.user');
+
+    Route::post('/logout', [AuthController::class, 'logout'])->name('api.logout');
+});
