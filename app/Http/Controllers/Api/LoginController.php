@@ -44,7 +44,19 @@ class LoginController extends Controller
                 'success' => true,
                 'data' => $user,
                 'token' => $token
-            ]);
+            ])->withCookie(
+                cookie(
+                    'token',
+                    $token,
+                    60 * 24, // 24 hours
+                    null,
+                    null,
+                    config('app.env') === 'production', // secure only in production
+                    true, // httpOnly
+                    false,
+                    'lax' // sameSite
+                )
+            );
 
         } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json([
