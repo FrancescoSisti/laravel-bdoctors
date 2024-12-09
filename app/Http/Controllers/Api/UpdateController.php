@@ -28,8 +28,8 @@ class UpdateController extends Controller
             // Validate all input data at once
             $validator = Validator::make($request->all(), [
                 // Profile validation rules
-                'curriculum' => 'nullable|string|max:5000',
-                'photo' => 'nullable|string',
+                'curriculum' => 'nullable|file|mimes:pdf|max:5000',
+                'photo' => 'nullable|file|mimes:jpeg,png,jpg|max:2048',
                 'office_address' => 'required|string|max:255',
                 'phone' => ['required', 'string', 'max:20', 'regex:/^([0-9\s\-\+\(\)]*)$/'],
                 'services' => 'nullable|string|max:1000',

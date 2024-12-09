@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "9a91503733b8ec74a77cac92589610d2",
+    "content-hash": "f51f91af18d03e3ee450ae19a0a34885",
     "packages": [
         {
             "name": "bacon/bacon-qr-code",
@@ -1157,6 +1157,105 @@
                 }
             ],
             "time": "2023-12-03T19:50:20+00:00"
+        },
+        {
+            "name": "lanciweb/laravel-make-crud",
+            "version": "v1.0.4",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/LanciWeb/laravel-make-crud.git",
+                "reference": "cc88ae08bbd583fd62a4ebeaaeca5ea25af1f4d1"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/LanciWeb/laravel-make-crud/zipball/cc88ae08bbd583fd62a4ebeaaeca5ea25af1f4d1",
+                "reference": "cc88ae08bbd583fd62a4ebeaaeca5ea25af1f4d1",
+                "shasum": ""
+            },
+            "require": {
+                "lanciweb/laravel-make-view": "^1.2"
+            },
+            "require-dev": {
+                "orchestra/testbench": "^8.0"
+            },
+            "type": "laravel-package",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "LanciWeb\\LaravelMakeCrud\\LaravelMakeCrudServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "LanciWeb\\LaravelMakeCrud\\": "src/",
+                    "LanciWeb\\LaravelMakeCrud\\Commands\\": "src/Commands/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Marco Lancellotti",
+                    "email": "lancellotti.marco@yahoo.it"
+                }
+            ],
+            "description": "A Laravel Package that allows creation of Model, Migration, Seeder, Views, Routes and resource controller for CRUD operations.",
+            "support": {
+                "issues": "https://github.com/LanciWeb/laravel-make-crud/issues",
+                "source": "https://github.com/LanciWeb/laravel-make-crud/tree/v1.0.4"
+            },
+            "time": "2023-03-15T07:39:24+00:00"
+        },
+        {
+            "name": "lanciweb/laravel-make-view",
+            "version": "v1.2.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/LanciWeb/laravel-make-view.git",
+                "reference": "79c1a78613979eebe532f22827ecc14e10dede47"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/LanciWeb/laravel-make-view/zipball/79c1a78613979eebe532f22827ecc14e10dede47",
+                "reference": "79c1a78613979eebe532f22827ecc14e10dede47",
+                "shasum": ""
+            },
+            "require-dev": {
+                "orchestra/testbench": "^8.0"
+            },
+            "type": "laravel-package",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "LanciWeb\\LaravelMakeView\\LaravelMakeViewServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "LanciWeb\\LaravelMakeView\\": "src/",
+                    "LanciWeb\\LaravelMakeView\\Commands\\": "src/Commands/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Marco Lancellotti",
+                    "email": "lancellotti.marco@yahoo.it"
+                }
+            ],
+            "description": "A Laravel package that allows to generate blade views via Artisan",
+            "support": {
+                "issues": "https://github.com/LanciWeb/laravel-make-view/issues",
+                "source": "https://github.com/LanciWeb/laravel-make-view/tree/v1.2.1"
+            },
+            "time": "2023-03-07T08:05:00+00:00"
         },
         {
             "name": "laravel/fortify",
