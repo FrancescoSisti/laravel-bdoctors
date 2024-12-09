@@ -51,8 +51,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/profiles', [CreateController::class, 'create'])->name('api.profiles.create');
     Route::get('/profiles/edit/{id}', [EditController::class, 'edit'])->name('api.profiles.edit');
     Route::put('/profiles/{id}', [UpdateController::class, 'update'])->name('api.profiles.update');
-});
 
-Route::group(["prefix" => "upload"], function () {
-    Route::post('/documento', [UploadController::class, 'documentoLavoro']);
+    // Upload routes
+    Route::post('/upload/file', [UploadController::class, 'store'])->name('api.upload.file');
 });

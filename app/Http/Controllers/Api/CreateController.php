@@ -8,9 +8,15 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 class CreateController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('auth:sanctum');
+    }
+
     public function create(Request $request)
     {
         try {
@@ -33,18 +39,30 @@ class CreateController extends Controller
 
             // Validate request data
             $validated = $request->validate([
-                'curriculum' => 'nullable|string|max:5000',
-                'photo' => 'nullable|string|max:255',
+                'curriculum' => 'nullable|file|mimes:pdf|max:5000',
+                'photo' => 'nullable|file|mimes:jpeg,png,jpg|max:2048',
                 'office_address' => 'required|string|max:255',
-                'phone' => 'required|string|max:20|regex:/^([0-9\s\-\+\(\)]*)$/',
+                'phone' => ['required', 'string', 'max:20', 'regex:/^([0-9\s\-\+\(\)]*)$/'],
                 'services' => 'required|string|max:1000'
             ]);
+
+            // Handle file uploads
+            $curriculumPath = null;
+            $photoPath = null;
+
+            if ($request->hasFile('curriculum')) {
+                $curriculumPath = $request->file('curriculum')->store('curricula', 'public');
+            }
+
+            if ($request->hasFile('photo')) {
+                $photoPath = $request->file('photo')->store('photos', 'public');
+            }
 
             // Create profile
             $profile = Profile::create([
                 'user_id' => $user->id,
-                'curriculum' => $validated['curriculum'],
-                'photo' => $validated['photo'],
+                'curriculum' => $curriculumPath,
+                'photo' => $photoPath,
                 'office_address' => $validated['office_address'],
                 'phone' => $validated['phone'],
                 'services' => $validated['services']
@@ -62,6 +80,14 @@ class CreateController extends Controller
             ], 201);
 
         } catch (\Exception $e) {
+            // Clean up any uploaded files if profile creation failed
+            if (isset($curriculumPath)) {
+                Storage::disk('public')->delete($curriculumPath);
+            }
+            if (isset($photoPath)) {
+                Storage::disk('public')->delete($photoPath);
+            }
+
             Log::error('Failed to create profile', [
                 'user_id' => Auth::id(),
                 'error' => $e->getMessage()
