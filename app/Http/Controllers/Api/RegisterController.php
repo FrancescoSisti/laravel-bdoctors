@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Controllers\Controller;
+use Laravel\Sanctum\HasApiTokens;
 
 class RegisterController extends Controller
 {
@@ -24,15 +25,33 @@ class RegisterController extends Controller
 
             $user = $this->createUser($validated);
 
+            // Revoke any existing tokens for security
+            $user->tokens()->delete();
+
+            // Generate new token
             $token = $user->createToken('auth-token')->plainTextToken;
+
+            // Configure secure cookie options
+            $cookieOptions = [
+                'name' => 'token',
+                'value' => $token,
+                'expires' => 60 * 24, // 24 hours
+                'path' => '/',
+                'domain' => null,
+                'secure' => config('app.env') === 'production',
+                'httponly' => true,
+                'samesite' => 'lax'
+            ];
 
             Log::info('User registered successfully', ['user_id' => $user->id]);
 
-            return $this->successResponse($user, $token);
+            return $this->successResponse($user, $token)
+                ->withCookie(cookie()->make(...array_values($cookieOptions)));
 
         } catch (\Illuminate\Validation\ValidationException $e) {
             Log::error('Registration validation failed', ['errors' => $e->errors()]);
             return response()->json([
+                'success' => false,
                 'message' => 'Validation failed',
                 'errors' => $e->errors()
             ], 422);
@@ -43,8 +62,9 @@ class RegisterController extends Controller
             ]);
 
             return response()->json([
+                'success' => false,
                 'message' => 'Registration failed',
-                'error' => $e->getMessage()
+                'error' => config('app.debug') ? $e->getMessage() : 'An unexpected error occurred'
             ], 500);
         }
     }
@@ -115,9 +135,12 @@ class RegisterController extends Controller
     private function successResponse(User $user, string $token)
     {
         return response()->json([
+            'success' => true,
             'message' => 'User registered successfully',
-            'user' => $user,
-            'token' => $token
+            'data' => [
+                'user' => $user,
+                'token' => $token
+            ]
         ], 201);
     }
 }
