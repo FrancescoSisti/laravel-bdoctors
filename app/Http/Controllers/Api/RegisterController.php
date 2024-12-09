@@ -46,7 +46,8 @@ class RegisterController extends Controller
             Log::info('User registered successfully', ['user_id' => $user->id]);
 
             return $this->successResponse($user, $token)
-                ->withCookie(cookie()->make(...array_values($cookieOptions)));
+                ->withCookie(cookie()->make(...array_values($cookieOptions)))
+                ->header('Access-Control-Allow-Origin', config('cors.allowed_origins')[0]);
 
         } catch (\Illuminate\Validation\ValidationException $e) {
             Log::error('Registration validation failed', ['errors' => $e->errors()]);
@@ -54,7 +55,8 @@ class RegisterController extends Controller
                 'success' => false,
                 'message' => 'Validation failed',
                 'errors' => $e->errors()
-            ], 422);
+            ], 422)
+            ->header('Access-Control-Allow-Origin', config('cors.allowed_origins')[0]);
         } catch (\Exception $e) {
             Log::error('Registration failed', [
                 'error' => $e->getMessage(),
@@ -65,7 +67,8 @@ class RegisterController extends Controller
                 'success' => false,
                 'message' => 'Registration failed',
                 'error' => config('app.debug') ? $e->getMessage() : 'An unexpected error occurred'
-            ], 500);
+            ], 500)
+            ->header('Access-Control-Allow-Origin', config('cors.allowed_origins')[0]);
         }
     }
 

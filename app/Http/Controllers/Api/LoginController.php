@@ -15,7 +15,7 @@ class LoginController extends Controller
     {
         try {
             $validated = $request->validate([
-                'email' => ['required', 'string', 'email', 'max:50', 'exists:users,email'],
+                'email' => ['required', 'string', 'email', 'max:50'],
                 'password' => ['required', 'string', 'min:8'],
             ]);
 

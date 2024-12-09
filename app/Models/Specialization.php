@@ -38,7 +38,7 @@ class Specialization extends Model
         return $this->hasManyThrough(
             Profile::class,
             User::class,
-            'specialization_id', // Foreign key on specialization_user pivot table
+            'specialization_id', // Foreign key on users table
             'user_id', // Foreign key on profiles table
             'id', // Local key on specializations table
             'id' // Local key on users table

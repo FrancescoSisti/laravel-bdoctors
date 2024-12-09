@@ -19,7 +19,7 @@ class UserSeeder extends Seeder
 
        // $specializationIds = Specialization::all()->pluck("id");
 
-        for($i = 0; $i < 250; $i++) {
+        for($i = 0; $i < 100; $i++) {
             $newUser = new User();
             $newUser->first_name = $faker->firstName();
             $newUser->last_name = $faker->lastName();

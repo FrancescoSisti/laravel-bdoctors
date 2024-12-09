@@ -14,7 +14,7 @@ return [
 
     'stateful' => explode(',', env('SANCTUM_STATEFUL_DOMAINS', sprintf(
         '%s%s',
-        'localhost:5173,127.0.0.1:5173,localhost:8000,127.0.0.1:8000',
+        'localhost,localhost:5173,127.0.0.1,127.0.0.1:5173,127.0.0.1:8000,::1',
         env('APP_URL') ? ','.parse_url(env('APP_URL'), PHP_URL_HOST) : ''
     ))),
 
@@ -43,9 +43,19 @@ return [
     |
     */
 
-    'expiration' => null,
+    'expiration' => env('SANCTUM_API_TOKEN_EXPIRATION', null),
 
-    'token_prefix' => '',
+    /*
+    |--------------------------------------------------------------------------
+    | Token Prefix
+    |--------------------------------------------------------------------------
+    |
+    | This value defines the prefix that will be added to all Sanctum tokens.
+    | If you're not using token prefixes, you can leave this value empty.
+    |
+    */
+
+    'token_prefix' => env('SANCTUM_API_TOKEN_PREFIX', ''),
 
     /*
     |--------------------------------------------------------------------------
@@ -63,7 +73,28 @@ return [
         'encrypt_cookies' => App\Http\Middleware\EncryptCookies::class,
     ],
 
-    'prefix' => 'api',
+    /*
+    |--------------------------------------------------------------------------
+    | API Prefix
+    |--------------------------------------------------------------------------
+    |
+    | This value defines the prefix for the Sanctum API routes. You can modify
+    | this if you need to use a different prefix for your API endpoints.
+    |
+    */
+
+    'prefix' => env('SANCTUM_API_PREFIX', 'api'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Sanctum Domain
+    |--------------------------------------------------------------------------
+    |
+    | This value defines the domain that will be used for Sanctum authentication.
+    | By default, it uses the APP_URL domain. You can override this by setting
+    | the SANCTUM_DOMAIN environment variable.
+    |
+    */
 
     'domain' => env('SANCTUM_DOMAIN', null),
 ];
