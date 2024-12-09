@@ -12,6 +12,25 @@ class VerifyCsrfToken extends Middleware
      * @var array<int, string>
      */
     protected $except = [
-        //
+        'sanctum/csrf-cookie',
+        'api/login',
+        'api/register'
     ];
+
+    /**
+     * Determine if the request has a valid CSRF token.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return bool
+     */
+    protected function tokensMatch($request)
+    {
+        $token = $request->input('_token') ?: $request->header('X-CSRF-TOKEN');
+
+        if (!$token && $header = $request->header('X-XSRF-TOKEN')) {
+            $token = $this->encrypter->decrypt($header, static::serialized());
+        }
+
+        return is_string($token) && hash_equals($request->session()->token(), $token);
+    }
 }

@@ -12,15 +12,11 @@ return [
     |
     */
 
-    'stateful' => [
-        'localhost',
-        'localhost:5173',
-        'localhost:8000',
-        '127.0.0.1',
-        '127.0.0.1:8000',
-        '::1',
-        parse_url(env('APP_URL', 'http://localhost'), PHP_URL_HOST)
-    ],
+    'stateful' => explode(',', env('SANCTUM_STATEFUL_DOMAINS', sprintf(
+        '%s%s',
+        'localhost,localhost:5173,127.0.0.1,127.0.0.1:5173,::1',
+        env('APP_URL') ? ','.parse_url(env('APP_URL'), PHP_URL_HOST) : ''
+    ))),
 
     /*
     |--------------------------------------------------------------------------
@@ -49,6 +45,8 @@ return [
 
     'expiration' => null,
 
+    'token_prefix' => '',
+
     /*
     |--------------------------------------------------------------------------
     | Sanctum Middleware
@@ -64,4 +62,8 @@ return [
         'verify_csrf_token' => App\Http\Middleware\VerifyCsrfToken::class,
         'encrypt_cookies' => App\Http\Middleware\EncryptCookies::class,
     ],
+
+    'prefix' => 'api',
+
+    'domain' => env('SANCTUM_DOMAIN', null),
 ];
