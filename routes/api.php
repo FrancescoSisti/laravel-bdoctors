@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\RegisterController;
 use App\Http\Controllers\Api\ShowController;
@@ -28,9 +29,25 @@ Route::middleware('api')->group(function () {
     Route::post('/login', [LoginController::class, 'login'])->name('api.login');
     Route::post('/register', [RegisterController::class, 'register'])->name('api.register');
     Route::get('/specializations', function () {
-        return response()->json([
-            'specializations' => Specialization::select('id', 'name')->orderBy('name')->get()
-        ]);
+        try {
+            $specializations = Specialization::select('id', 'name')
+                ->orderBy('name')
+                ->get();
+
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'specializations' => $specializations
+                ]
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error fetching specializations: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Error fetching specializations',
+                'error' => config('app.debug') ? $e->getMessage() : null
+            ], 500);
+        }
     })->name('api.specializations');
 });
 

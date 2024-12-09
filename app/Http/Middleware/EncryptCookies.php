@@ -12,6 +12,16 @@ class EncryptCookies extends Middleware
      * @var array<int, string>
      */
     protected $except = [
-        //
+        'XSRF-TOKEN'
     ];
+
+    /**
+     * Define the cookie domain
+     *
+     * @return string|null
+     */
+    protected function cookieDomain()
+    {
+        return parse_url(request()->root(), PHP_URL_HOST);
+    }
 }
