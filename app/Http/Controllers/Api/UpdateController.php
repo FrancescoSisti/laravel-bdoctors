@@ -62,7 +62,7 @@ class UpdateController extends Controller
     {
         return $request->validate([
             'user_id' => ['required', 'exists:users,id'],
-            'curriculum' => ['required', 'string', 'min:200', 'max:1000'],
+            'curriculum' => ['required', 'string', 'url'],
             'photo' => ['required', 'string', 'url'],
             'office_address' => ['required', 'string', 'max:100'],
             'phone' => ['required', 'string', 'max:20'],
