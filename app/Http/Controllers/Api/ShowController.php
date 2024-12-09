@@ -11,6 +11,11 @@ use Illuminate\Support\Facades\Auth;
 
 class ShowController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('auth:sanctum');
+    }
+
     /**
      * Display the specified profile with user data.
      *
@@ -20,13 +25,6 @@ class ShowController extends Controller
     public function show($id)
     {
         try {
-            if (!Auth::check()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Non autorizzato'
-                ], 401);
-            }
-
             $user = User::with([
                 'profile.messages',
                 'profile.sponsorships',

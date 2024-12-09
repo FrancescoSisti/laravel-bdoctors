@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
 class UpdateController extends Controller
@@ -19,9 +20,15 @@ class UpdateController extends Controller
             $profile = Profile::with(['user', 'user.specializations'])->findOrFail($id);
 
             if ($profile->user_id !== auth()->id()) {
+                Log::warning('Unauthorized profile update attempt', [
+                    'profile_id' => $id,
+                    'attempted_user_id' => auth()->id(),
+                    'profile_owner_id' => $profile->user_id
+                ]);
+
                 return response()->json([
                     'success' => false,
-                    'message' => 'Non autorizzato ad aggiornare questo profilo'
+                    'message' => 'Non sei autorizzato ad aggiornare questo profilo'
                 ], 403);
             }
 
@@ -71,10 +78,30 @@ class UpdateController extends Controller
 
             DB::beginTransaction();
             try {
+                // Handle file uploads
+                $curriculumPath = $profile->curriculum;
+                $photoPath = $profile->photo;
+
+                if ($request->hasFile('curriculum')) {
+                    // Delete old curriculum if exists
+                    if ($profile->curriculum) {
+                        Storage::disk('public')->delete($profile->curriculum);
+                    }
+                    $curriculumPath = $request->file('curriculum')->store('curricula', 'public');
+                }
+
+                if ($request->hasFile('photo')) {
+                    // Delete old photo if exists
+                    if ($profile->photo) {
+                        Storage::disk('public')->delete($profile->photo);
+                    }
+                    $photoPath = $request->file('photo')->store('photos', 'public');
+                }
+
                 // Update profile
                 $profile->update([
-                    'curriculum' => $validatedData['curriculum'] ?? $profile->curriculum,
-                    'photo' => $validatedData['photo'] ?? $profile->photo,
+                    'curriculum' => $curriculumPath,
+                    'photo' => $photoPath,
                     'office_address' => $validatedData['office_address'],
                     'phone' => $validatedData['phone'],
                     'services' => $validatedData['services'] ?? $profile->services
@@ -103,6 +130,15 @@ class UpdateController extends Controller
 
             } catch (\Exception $e) {
                 DB::rollBack();
+
+                // Clean up any newly uploaded files if update failed
+                if (isset($curriculumPath) && $curriculumPath !== $profile->curriculum) {
+                    Storage::disk('public')->delete($curriculumPath);
+                }
+                if (isset($photoPath) && $photoPath !== $profile->photo) {
+                    Storage::disk('public')->delete($photoPath);
+                }
+
                 Log::error('Errore durante l\'aggiornamento del profilo', [
                     'profile_id' => $id,
                     'error' => $e->getMessage(),
