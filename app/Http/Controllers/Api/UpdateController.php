@@ -23,7 +23,27 @@ class UpdateController extends Controller
             $profile->photo = $validated['photo'];
             $profile->curriculum = $validated['curriculum'];
 
+            if ($request->hasFile('photo')) {
+                $path = $request->file('photo')->store('photos', 'public');
+                $profile->photo = $path;
+
+                $photoUrl = asset('storage/' . $path);
+
+                // return response()->json(['photoUrl' => $photoUrl]);
+            }
+
+            if ($request->hasFile('curriculum')) {
+                $path = $request->file('curriculum')->store('curricula', 'public');
+                $profile->curriculum = $path;
+
+                $curriculumUrl = asset('storage/' . $path);
+
+                // return response()->json(['curriculumUrl' => $curriculumUrl]);
+            }
+
             $profile->save();
+
+            // return back()->with('success', 'Profilo aggiornato con successo!');
 
             Log::info('Profile updated successfully', ['profile_id' => $profile->id]);
 
@@ -31,7 +51,6 @@ class UpdateController extends Controller
                 'message' => 'Profile updated successfully',
                 'profile' => $profile
             ], 201);
-
         } catch (\Illuminate\Validation\ValidationException $e) {
             Log::error('Profile update validation failed', ['errors' => $e->errors()]);
             return response()->json([
@@ -62,11 +81,12 @@ class UpdateController extends Controller
     {
         return $request->validate([
             'user_id' => ['required', 'exists:users,id'],
-            'curriculum' => ['required', 'string', 'url'],
-            'photo' => ['required', 'string', 'url'],
+            'curriculum' => ['required', 'file', 'mimes:jpeg,png,jpg,pdf', 'max:2048'],
+            'photo' => ['required', 'image', 'mimes:jpeg,png,jpg', 'max:2048'],
             'office_address' => ['required', 'string', 'max:100'],
             'phone' => ['required', 'string', 'max:20'],
             'services' => ['required', 'string', 'min:5', 'max:100'],
+
         ]);
     }
 }
