@@ -8,9 +8,15 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
+use Laravel\Sanctum\HasApiTokens;
 
 class LoginController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('auth:sanctum')->only('logout');
+    }
+
     /**
      * Handle a login request.
      *
@@ -20,59 +26,77 @@ class LoginController extends Controller
     public function login(Request $request)
     {
         try {
-            $validated = $request->validate([
+            $validator = Validator::make($request->all(), [
                 'email' => ['required', 'string', 'email', 'max:50', 'exists:users,email'],
                 'password' => ['required', 'string', 'min:8'],
+            ], [
+                'email.required' => 'Email is required',
+                'email.email' => 'Please enter a valid email address',
+                'email.exists' => 'This email is not registered',
+                'password.required' => 'Password is required',
+                'password.min' => 'Password must be at least 8 characters'
             ]);
 
-            if (!Auth::attempt($validated)) {
+            if ($validator->fails()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Validation failed',
+                    'errors' => $validator->errors()
+                ], 422);
+            }
+
+            $credentials = $validator->validated();
+
+            if (!Auth::attempt($credentials)) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Invalid credentials'
                 ], 401);
             }
 
-            $user = User::where('email', $request->email)->firstOrFail();
+            $user = User::with(['specializations', 'profile'])
+                       ->where('email', $credentials['email'])
+                       ->firstOrFail();
 
-            // Load necessary relationships
-            $user->load(['specializations', 'profile']);
+            // Revoke any existing tokens for security
+            $user->tokens()->delete();
 
-            // Create token
+            // Generate new token
             $token = $user->createToken('auth-token')->plainTextToken;
+
+            // Configure secure cookie options
+            $cookieOptions = [
+                'name' => 'token',
+                'value' => $token,
+                'expires' => 60 * 24, // 24 hours
+                'path' => '/',
+                'domain' => null,
+                'secure' => config('app.env') === 'production',
+                'httponly' => true,
+                'samesite' => 'lax'
+            ];
+
+            Log::info('User logged in successfully', ['user_id' => $user->id]);
 
             return response()->json([
                 'success' => true,
-                'data' => $user,
-                'token' => $token
-            ])->withCookie(
-                cookie(
-                    'token',
-                    $token,
-                    60 * 24, // 24 hours
-                    null,
-                    null,
-                    config('app.env') === 'production', // secure only in production
-                    true, // httpOnly
-                    false,
-                    'lax' // sameSite
-                )
-            );
+                'message' => 'Login successful',
+                'data' => [
+                    'user' => $user,
+                    'token' => $token
+                ]
+            ])->withCookie(cookie()->make(...array_values($cookieOptions)));
 
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation error',
-                'errors' => $e->errors()
-            ], 422);
         } catch (\Exception $e) {
-            Log::error('Login error', [
+            Log::error('Login failed', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
+
             return response()->json([
                 'success' => false,
-                'message' => 'Error during login',
-                'error' => $e->getMessage()
+                'message' => 'Login failed',
+                'error' => config('app.debug') ? $e->getMessage() : 'An unexpected error occurred'
             ], 500);
         }
     }
@@ -86,25 +110,29 @@ class LoginController extends Controller
     public function logout(Request $request)
     {
         try {
-            // Revoke the token that was used to authenticate the current request
-            $request->user()->currentAccessToken()->delete();
+            $userId = $request->user()->id;
 
-            Log::info('User logged out successfully', ['user_id' => $request->user()->id]);
+            // Revoke all tokens
+            $request->user()->tokens()->delete();
+
+            Log::info('User logged out successfully', ['user_id' => $userId]);
 
             return response()->json([
                 'success' => true,
                 'message' => 'Logged out successfully'
-            ]);
+            ])->withCookie(cookie()->forget('token'));
 
         } catch (\Exception $e) {
-            Log::error('Logout error', [
+            Log::error('Logout failed', [
+                'user_id' => $request->user()->id ?? 'unknown',
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
+
             return response()->json([
                 'success' => false,
-                'message' => 'An error occurred during logout',
-                'error' => $e->getMessage()
+                'message' => 'Logout failed',
+                'error' => config('app.debug') ? $e->getMessage() : 'An unexpected error occurred'
             ], 500);
         }
     }
