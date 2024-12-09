@@ -7,15 +7,10 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Cookie;
 
 class LoginController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware('guest')->except('logout');
-    }
-
     public function login(Request $request)
     {
         try {
@@ -33,6 +28,9 @@ class LoginController extends Controller
 
             $user = User::where('email', $request->email)->firstOrFail();
 
+            // Revoke all existing tokens
+            $user->tokens()->delete();
+
             // Load necessary relationships
             $user->load(['specializations', 'profile']);
 
@@ -46,21 +44,22 @@ class LoginController extends Controller
             ]);
 
             // Set cookie with token
-            return $response->withCookie(
-                cookie(
-                    'token',
-                    $token,
-                    60 * 24, // 24 hours
-                    '/',
-                    null,
-                    config('app.env') === 'production', // secure only in production
-                    true, // httpOnly
-                    false,
-                    'lax' // sameSite
-                )
-            );
+            $response->withCookie(cookie(
+                'token',
+                $token,
+                60 * 24, // 24 hours
+                '/',
+                config('session.domain'),
+                true, // secure
+                true, // httpOnly
+                false,
+                config('session.same_site')
+            ));
+
+            return $response;
 
         } catch (\Illuminate\Validation\ValidationException $e) {
+            Log::error('Login validation failed', ['errors' => $e->errors()]);
             return response()->json([
                 'success' => false,
                 'message' => 'Validation error',
@@ -74,7 +73,7 @@ class LoginController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Error during login',
-                'error' => $e->getMessage()
+                'error' => config('app.debug') ? $e->getMessage() : null
             ], 500);
         }
     }
@@ -86,12 +85,17 @@ class LoginController extends Controller
             $request->user()->currentAccessToken()->delete();
 
             // Clear session
-            Session::flush();
+            Auth::guard('web')->logout();
 
-            return response()->json([
+            $response = response()->json([
                 'success' => true,
                 'message' => 'Logged out successfully'
-            ])->withCookie(cookie()->forget('token'));
+            ]);
+
+            // Clear the token cookie
+            $response->withCookie(Cookie::forget('token'));
+
+            return $response;
 
         } catch (\Exception $e) {
             Log::error('Logout error', [
@@ -101,7 +105,7 @@ class LoginController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'An error occurred during logout',
-                'error' => $e->getMessage()
+                'error' => config('app.debug') ? $e->getMessage() : null
             ], 500);
         }
     }

@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken as Middleware;
+use Illuminate\Support\Facades\Cookie;
 
 class VerifyCsrfToken extends Middleware
 {
@@ -18,19 +19,30 @@ class VerifyCsrfToken extends Middleware
     ];
 
     /**
-     * Determine if the request has a valid CSRF token.
+     * Add the CSRF token to the response cookies.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @return bool
+     * @param  \Symfony\Component\HttpFoundation\Response  $response
+     * @return \Symfony\Component\HttpFoundation\Response
      */
-    protected function tokensMatch($request)
+    protected function addCookieToResponse($request, $response)
     {
-        $token = $request->input('_token') ?: $request->header('X-CSRF-TOKEN');
+        $config = config('session');
 
-        if (!$token && $header = $request->header('X-XSRF-TOKEN')) {
-            $token = $this->encrypter->decrypt($header, static::serialized());
-        }
+        $response->headers->setCookie(
+            Cookie::make(
+                'XSRF-TOKEN',
+                $request->session()->token(),
+                60 * $config['lifetime'],
+                $config['path'],
+                $config['domain'],
+                true, // secure
+                false, // httpOnly
+                false,
+                $config['same_site']
+            )
+        );
 
-        return is_string($token) && hash_equals($request->session()->token(), $token);
+        return $response;
     }
 }

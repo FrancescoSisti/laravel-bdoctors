@@ -11,7 +11,7 @@ use App\Http\Controllers\Api\EditController;
 use App\Http\Controllers\Api\LoginController;
 use App\Http\Controllers\Api\UpdateController;
 use App\Http\Controllers\Api\UploadController;
-use App\Models\Specialization;
+use App\Http\Controllers\Api\SpecializationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -24,40 +24,29 @@ use App\Models\Specialization;
 |
 */
 
-// Public routes (no CSRF or auth required)
-Route::middleware('api')->group(function () {
-    Route::post('/login', [LoginController::class, 'login'])->name('api.login');
-    Route::post('/register', [RegisterController::class, 'register'])->name('api.register');
-    Route::get('/specializations', function () {
-        try {
-            $specializations = Specialization::select('id', 'name')
-                ->orderBy('name')
-                ->get();
-
-            return response()->json([
-                'success' => true,
-                'data' => [
-                    'specializations' => $specializations
-                ]
-            ]);
-        } catch (\Exception $e) {
-            Log::error('Error fetching specializations: ' . $e->getMessage());
-            return response()->json([
-                'success' => false,
-                'message' => 'Error fetching specializations',
-                'error' => config('app.debug') ? $e->getMessage() : null
-            ], 500);
-        }
-    })->name('api.specializations');
-});
+// Public routes (no auth required)
+Route::get('/specializations', [SpecializationController::class, 'index'])->name('api.specializations');
+Route::post('/login', [LoginController::class, 'login'])->name('api.login');
+Route::post('/register', [RegisterController::class, 'register'])->name('api.register');
 
 // Protected routes
 Route::middleware(['auth:sanctum'])->group(function () {
+    // User profile
     Route::get('/user', function (Request $request) {
-        return response()->json([
-            'success' => true,
-            'data' => $request->user()->load(['specializations', 'profile'])
-        ]);
+        try {
+            $user = $request->user()->load(['specializations', 'profile']);
+            return response()->json([
+                'success' => true,
+                'data' => $user
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error fetching user data: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Error fetching user data',
+                'error' => config('app.debug') ? $e->getMessage() : null
+            ], 500);
+        }
     })->name('api.user');
 
     Route::post('/logout', [LoginController::class, 'logout'])->name('api.logout');

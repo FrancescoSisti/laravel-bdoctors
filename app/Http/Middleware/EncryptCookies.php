@@ -22,6 +22,6 @@ class EncryptCookies extends Middleware
      */
     protected function cookieDomain()
     {
-        return parse_url(request()->root(), PHP_URL_HOST);
+        return config('session.domain');
     }
 }
