@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\HomeController;
+use Laravel\Sanctum\Http\Controllers\CsrfCookieController;
 
 /*
 |--------------------------------------------------------------------------
@@ -28,3 +29,6 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [HomeController::class, 'dashboard'])->name('dashboard');
     Route::get('/profile', [HomeController::class, 'profile'])->name('profile');
 });
+
+// Aggiungi la rotta per il CSRF cookie
+Route::get('/sanctum/csrf-cookie', [CsrfCookieController::class, 'show']);
