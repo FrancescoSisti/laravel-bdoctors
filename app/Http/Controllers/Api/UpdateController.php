@@ -53,7 +53,7 @@ class UpdateController extends Controller
 
     /**
      * Validate profile data
-     *
+     * daaaaaaaai
      * @param Request $request
      * @return array
      * @throws \Illuminate\Validation\ValidationException
