@@ -8,6 +8,9 @@ use App\Http\Controllers\Api\ShowController;
 use App\Http\Controllers\Api\CreateController;
 use App\Http\Controllers\Api\EditController;
 use App\Http\Controllers\Api\IndexController;
+use App\Http\Controllers\Api\IndexMessageController;
+use App\Http\Controllers\Api\IndexReviewController;
+use App\Http\Controllers\Api\IndexSponsoshipController;
 use App\Http\Controllers\Api\RegisterController as ApiRegisterController;
 use App\Http\Controllers\Api\UpdateController;
 use App\Http\Controllers\Auth\RegisterController as AuthRegisterController;
@@ -35,6 +38,14 @@ Route::get('/specializations', function () {
         'specializations' => $specializations
     ]);
 })->name('api.specializations');
+
+
+// Review routes
+Route::get('/reviews', [IndexReviewController::class, 'index'])->name('api.reviews.index');
+// Message routes
+Route::get('/messages', [IndexMessageController::class, 'index'])->name('api.messages.index');
+// Sponsorship routes
+Route::get('/sponsorships', [IndexSponsoshipController::class, 'index'])->name('api.sponsorships.index');
 
 // Profile routes
 Route::get('/profiles', [IndexController::class, 'index'])->name('api.profiles.index');
