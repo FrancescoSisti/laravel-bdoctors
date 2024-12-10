@@ -24,13 +24,30 @@ class CreateController extends Controller
 
             $profile = $this->createProfile($validated);
 
+            if ($request->hasFile('photo')) {
+                $path = $request->file('photo')->store('photos', 'public');
+                $profile->photo = $path;
+
+                $photoUrl = asset('storage/' . $path);
+
+                // return response()->json(['photoUrl' => $photoUrl]);
+            }
+
+            if ($request->hasFile('curriculum')) {
+                $path = $request->file('curriculum')->store('curricula', 'public');
+                $profile->curriculum = $path;
+
+                $curriculumUrl = asset('storage/' . $path);
+
+                // return response()->json(['curriculumUrl' => $curriculumUrl]);
+            }
+
             Log::info('Profile created successfully', ['profile_id' => $profile->id]);
 
             return response()->json([
                 'message' => 'Profile created successfully',
                 'profile' => $profile
             ], 201);
-
         } catch (\Illuminate\Validation\ValidationException $e) {
             Log::error('Profile creation validation failed', ['errors' => $e->errors()]);
             return response()->json([
@@ -61,8 +78,8 @@ class CreateController extends Controller
     {
         return $request->validate([
             'user_id' => ['required', 'exists:users,id'],
-            'curriculum' => ['required', 'string', 'min:200', 'max:1000'],
-            'photo' => ['required', 'string', 'url'],
+            'curriculum' => ['required', 'file', 'mimes:jpeg,png,jpg,pdf', 'max:2048'],
+            'photo' => ['required', 'image', 'mimes:jpeg,png,jpg', 'max:2048'],
             'office_address' => ['required', 'string', 'max:100'],
             'phone' => ['required', 'string', 'max:20'],
             'services' => ['required', 'string', 'min:5', 'max:100'],

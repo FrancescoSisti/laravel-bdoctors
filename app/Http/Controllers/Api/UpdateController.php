@@ -86,7 +86,6 @@ class UpdateController extends Controller
             'office_address' => ['required', 'string', 'max:100'],
             'phone' => ['required', 'string', 'max:20'],
             'services' => ['required', 'string', 'min:5', 'max:100'],
-
         ]);
     }
 }
