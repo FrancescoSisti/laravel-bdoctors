@@ -21,8 +21,8 @@ class ProfileSponsorshipSeeder extends Seeder
         $sponsorships = Sponsorship::all()->pluck('id');
 
         foreach($profiles as $profile) {
-            $randomSponsorship = $faker->randomElements($sponsorships->toArray());
-            $profile->sponsorships()->attach($randomSponsorship, [
+            //$randomSponsorship = $faker->randomElements($sponsorships->toArray(), rand[0, 2]);
+            $profile->sponsorships()->attach($faker->randomElements($sponsorships, rand(0,2)), [
                 'start_date' => $faker->date(),
                 'end_date' => $faker->date()
             ]);
