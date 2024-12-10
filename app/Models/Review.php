@@ -8,4 +8,8 @@ use Illuminate\Database\Eloquent\Model;
 class Review extends Model
 {
     use HasFactory;
+
+    public function profiles(){
+        return $this->belongsTo(Profile::class);
+    }
 }
