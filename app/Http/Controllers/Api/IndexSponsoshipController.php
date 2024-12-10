@@ -10,10 +10,10 @@ class IndexSponsoshipController extends Controller
 {
     public function index(){
 
-        $sponsorship = Sponsorship::with(['profiles'])->get();
+        $sponsorships = Sponsorship::with(['profiles'])->get();
         return response()->json([
             'success' => true,
-            'sponsorship' => $sponsorship
+            'sponsorships' => $sponsorships
         ]);
     }
 }
