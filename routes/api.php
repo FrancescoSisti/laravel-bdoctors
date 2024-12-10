@@ -45,7 +45,7 @@ Route::get('/reviews', [IndexReviewController::class, 'index'])->name('api.revie
 // Message routes
 Route::get('/messages', [IndexMessageController::class, 'index'])->name('api.messages.index');
 // Sponsorship routes
-Route::get('/sponsoships', [IndexSponsoshipController::class, 'index'])->name('api.sponsorships.index');
+Route::get('/sponsorships', [IndexSponsoshipController::class, 'index'])->name('api.sponsorships.index');
 
 // Profile routes
 Route::get('/profiles', [IndexController::class, 'index'])->name('api.profiles.index');
