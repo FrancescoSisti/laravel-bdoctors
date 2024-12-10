@@ -11,10 +11,11 @@ class IndexMessageController extends Controller
     public function index()
     {
         $messages = Message::with(['profiles'])->get();
+        //$messages = Message::all();
         //dd($messages);
         return response()->json([
             'success' => true,
-            'profiles' => $messages
+            'messages' => $messages
         ]);
     }
 }
