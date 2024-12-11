@@ -30,7 +30,7 @@ Route::post('/login', [LoginController::class, 'login'])->name('api.login');
 Route::post('/register', [RegisterController::class, 'register'])->name('api.register');
 
 // Protected routes
-Route::middleware(['auth:sanctum'])->group(function () {
+Route::middleware(['auth:sanctum', 'cors'])->group(function () {
     // User profile
     Route::get('/user', function (Request $request) {
         try {
@@ -61,3 +61,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     // Upload routes
     Route::post('/upload/file', [UploadController::class, 'store'])->name('api.upload.file');
 });
+
+Route::options('/sanctum/csrf-cookie', function () {
+    return response()->json();
+})->middleware('cors');
