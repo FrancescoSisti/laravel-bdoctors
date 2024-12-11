@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Profile;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
@@ -15,6 +16,23 @@ class UpdateController extends Controller
             $validated = $this->validateProfileData($request);
 
             $profile = Profile::findOrFail($id);
+
+            $user = User::with('specializations')->find($id);
+            $newSpecializations = $request['specializations'];
+
+            $user->specializations()->attach($request['specializations']);
+
+            $user->load('specializations');
+
+            // Updating the relation with users-specializations
+            // $user = User::findOrFail($id);
+            // $newSpecializations = $request['specializations'];
+            // foreach($newSpecializations as $singleSpec) {
+            //     $user->specializations()->attach($singleSpec['id']);
+            //     $user->load('specializations');
+            // }
+            //$user->specializations()->attach($request['specializations[0]']);
+            //$user->load('specializations');
 
 
             $profile->phone = $validated['phone'];
@@ -49,13 +67,16 @@ class UpdateController extends Controller
 
             return response()->json([
                 'message' => 'Profile updated successfully',
-                'profile' => $profile
+                'profile' => $profile,
+                'specializations' => $newSpecializations,
+                'user' => $newSpecializations
             ], 201);
         } catch (\Illuminate\Validation\ValidationException $e) {
             Log::error('Profile update validation failed', ['errors' => $e->errors()]);
             return response()->json([
                 'message' => 'Validation failed',
-                'errors' => $e->errors()
+                'errors' => $e->errors(),
+                'specializations' =>$newSpecializations
             ], 422);
         } catch (\Exception $e) {
             Log::error('Updating Profile failed', [
@@ -86,6 +107,7 @@ class UpdateController extends Controller
             'office_address' => ['required', 'string', 'max:100'],
             'phone' => ['required', 'string', 'max:20'],
             'services' => ['required', 'string', 'min:5', 'max:100'],
+            'specializations' => ['exists:specializations,id'],
         ]);
     }
 }
