@@ -16,7 +16,7 @@ class CreateMessageController extends Controller
 
             $newMessage = new Message();
 
-            $newMessage->user_id = $validated['user_id'];
+            $newMessage->user_id = $validated['profile_id'];
             $newMessage->content = $validated['content'];
             $newMessage->email = $validated['email'];
             $newMessage->first_name = $validated['first_name'];
@@ -63,7 +63,7 @@ class CreateMessageController extends Controller
     private function validateMessageData(Request $request)
     {
         return $request->validate([
-            'user_id' => ['required', 'exists:users,id'],
+            'profile_id' => ['required', 'exists:profiles,id'],
             'first_name' => ['required', 'string', 'max:50'],
             'last_name' => ['required', 'string', 'max:50'],
             'email' => [
