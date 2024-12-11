@@ -16,7 +16,7 @@ class CreateMessageController extends Controller
 
             $newMessage = new Message();
 
-            $newMessage->user_id = $validated['profile_id'];
+            $newMessage->profile_id = $validated['profile_id'];
             $newMessage->content = $validated['content'];
             $newMessage->email = $validated['email'];
             $newMessage->first_name = $validated['first_name'];
