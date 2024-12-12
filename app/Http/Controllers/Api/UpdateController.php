@@ -21,7 +21,7 @@ class UpdateController extends Controller
             //$newSpecializations = $request['specializations'];
 
             $specNuove = $validated['specializations'];
-            $user->specializations()->attach($validated['specializations']);
+            $user->specializations()->sync($validated['specializations']);
 
             //$user->load('specializations');
 
@@ -104,8 +104,8 @@ class UpdateController extends Controller
     {
         return $request->validate([
             'user_id' => ['required', 'exists:users,id'],
-            'curriculum' => ['required', 'file', 'mimes:jpeg,png,jpg,pdf', 'max:2048'],
-            'photo' => ['required', 'image', 'mimes:jpeg,png,jpg', 'max:2048'],
+            'curriculum' => ['file', 'mimes:jpeg,png,jpg,pdf', 'max:2048'],
+            'photo' => ['image', 'mimes:jpeg,png,jpg', 'max:2048'],
             'office_address' => ['required', 'string', 'max:100'],
             'phone' => ['required', 'string', 'max:20'],
             'services' => ['required', 'string', 'min:5', 'max:100'],
