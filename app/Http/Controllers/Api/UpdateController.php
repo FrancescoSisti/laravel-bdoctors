@@ -17,10 +17,10 @@ class UpdateController extends Controller
 
             $profile = Profile::findOrFail($id);
 
-            //$user = User::with('specializations')->find($id);
+            $user = User::with('specializations')->findOrFail($id);
             //$newSpecializations = $request['specializations'];
 
-            //$user->specializations()->attach($request['specializations']);
+            //$user->specializations()->attach($validated['specializations']);
 
             //$user->load('specializations');
 
@@ -69,7 +69,7 @@ class UpdateController extends Controller
                 'message' => 'Profile updated successfully',
                 'profile' => $profile,
                 //'specializations' => $newSpecializations,
-                //'user' => $newSpecializations
+                'user' => $user
             ], 201);
         } catch (\Illuminate\Validation\ValidationException $e) {
             Log::error('Profile update validation failed', ['errors' => $e->errors()]);
@@ -107,7 +107,7 @@ class UpdateController extends Controller
             'office_address' => ['required', 'string', 'max:100'],
             'phone' => ['required', 'string', 'max:20'],
             'services' => ['required', 'string', 'min:5', 'max:100'],
-            //'specializations' => ['exists:specializations,id'],
+            'specializations' => ['exists:specializations,id'],
         ]);
     }
 }
