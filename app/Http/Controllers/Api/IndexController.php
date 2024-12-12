@@ -10,7 +10,7 @@ class IndexController extends Controller
 {
     public function index()
     {
-        $profiles = Profile::with(['user.specializations', 'messages', 'sponsorships'])->get();
+        $profiles = Profile::with(['user.specializations', 'messages', 'reviews', 'sponsorships'])->get();
         //dd($profiles);
         return response()->json([
             'profiles' => $profiles
