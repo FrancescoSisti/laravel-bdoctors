@@ -17,12 +17,12 @@ class UpdateController extends Controller
 
             $profile = Profile::findOrFail($id);
 
-            $user = User::with('specializations')->find($id);
-            $newSpecializations = $request['specializations'];
+            //$user = User::with('specializations')->find($id);
+            //$newSpecializations = $request['specializations'];
 
-            $user->specializations()->attach($request['specializations']);
+            //$user->specializations()->attach($request['specializations']);
 
-            $user->load('specializations');
+            //$user->load('specializations');
 
             // Updating the relation with users-specializations
             // $user = User::findOrFail($id);
@@ -68,15 +68,15 @@ class UpdateController extends Controller
             return response()->json([
                 'message' => 'Profile updated successfully',
                 'profile' => $profile,
-                'specializations' => $newSpecializations,
-                'user' => $newSpecializations
+                //'specializations' => $newSpecializations,
+                //'user' => $newSpecializations
             ], 201);
         } catch (\Illuminate\Validation\ValidationException $e) {
             Log::error('Profile update validation failed', ['errors' => $e->errors()]);
             return response()->json([
                 'message' => 'Validation failed',
                 'errors' => $e->errors(),
-                'specializations' =>$newSpecializations
+                //'specializations' =>$newSpecializations
             ], 422);
         } catch (\Exception $e) {
             Log::error('Updating Profile failed', [
@@ -107,7 +107,7 @@ class UpdateController extends Controller
             'office_address' => ['required', 'string', 'max:100'],
             'phone' => ['required', 'string', 'max:20'],
             'services' => ['required', 'string', 'min:5', 'max:100'],
-            'specializations' => ['exists:specializations,id'],
+            //'specializations' => ['exists:specializations,id'],
         ]);
     }
 }
