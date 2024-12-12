@@ -20,12 +20,14 @@ class UpdateController extends Controller
             $user = User::with('specializations')->findOrFail($id);
             //$newSpecializations = $request['specializations'];
 
-            $specNuove = $validated['specializations'];
-            if ($validated['specializations']) {
+            //$specNuove = $validated['specializations'];
+            //$specVecchie = $request['oldSpecializations'];
+
+            //if (count($validated['specializations']) == 0) {
                 $user->specializations()->sync($validated['specializations']);
-            } else {
-                $user->specializations()->sync($validated['oldSpecializations']);
-            }
+            //} else {
+                //$user->specializations()->sync($request['oldSpecializations']);
+            //}
 
 
             //$user->load('specializations');
@@ -76,7 +78,8 @@ class UpdateController extends Controller
                 'profile' => $profile,
                 //'specializations' => $newSpecializations,
                 'user' => $user,
-                'specNuove' => $specNuove
+                //'specNuove' => $specNuove,
+                //'specVecchie' => $specVecchie
             ], 201);
         } catch (\Illuminate\Validation\ValidationException $e) {
             Log::error('Profile update validation failed', ['errors' => $e->errors()]);
