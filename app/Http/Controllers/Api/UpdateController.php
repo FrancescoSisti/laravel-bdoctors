@@ -20,7 +20,8 @@ class UpdateController extends Controller
             $user = User::with('specializations')->findOrFail($id);
             //$newSpecializations = $request['specializations'];
 
-            //$user->specializations()->attach($validated['specializations']);
+            $specNuove = $validated['specializations'];
+            $user->specializations()->attach($validated['specializations']);
 
             //$user->load('specializations');
 
@@ -69,7 +70,8 @@ class UpdateController extends Controller
                 'message' => 'Profile updated successfully',
                 'profile' => $profile,
                 //'specializations' => $newSpecializations,
-                'user' => $user
+                'user' => $user,
+                'specNuove' => $specNuove
             ], 201);
         } catch (\Illuminate\Validation\ValidationException $e) {
             Log::error('Profile update validation failed', ['errors' => $e->errors()]);
