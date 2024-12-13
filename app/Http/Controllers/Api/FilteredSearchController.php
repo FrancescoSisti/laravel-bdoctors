@@ -10,40 +10,28 @@ use Illuminate\Http\Request;
 
 class FilteredSearchController extends Controller
 {
-    public function filter(Request $request)
+    public function filter($id, $rating)
     {
-        $specialization_id = $request->query('specialization_id');
-        $input_rating = $request->query('input_rating');
+        // $input_rating = $rating->query('input_rating');
 
-        $query = User::select('users.*')
-            ->join('specialization_user', 'users.id', '=', 'specialization_user.user_id')
-            ->join('specializations', 'specializations.id', '=', 'specialization_user.specialization_id')
-            ->where('specialization_user.specialization_id', '=', $specialization_id);
-            //->groupBy('specializations.id', 'users.id');
+        if ($id) {
+            $query = User::select('users.*', 'profiles.*', 'specializations.*')
+                ->join('specialization_user', 'users.id', '=', 'specialization_user.user_id')
+                ->join('specializations', 'specializations.id', '=', 'specialization_user.specialization_id')
+                ->join('profiles', 'users.id', '=', 'profiles.user_id')
+                ->leftJoin('reviews', 'profiles.id', '=', 'reviews.profile_id')
+                ->where('specialization_user.specialization_id', '=', $id)
+                ->groupBy('users.id', 'profiles.id', 'specializations.id');
+        }
 
-        // if ($specialization_id) {
-        //     $query->havingRaw('specialization_id', [$specialization_id]);
-        // }
+        $query->selectRaw('COALESCE(AVG(reviews.votes), 0) as media_voti');  // Media dei voti
 
-        // $query = Profile::select('profiles.*')
-        //     ->join('reviews', 'profiles.id', '=', 'reviews.profile_id')
-        //     ->selectRaw('AVG(reviews.votes) as average_votes')
-        //     ->groupBy('profiles.id')
-        //     ->orderBy('profile_id');
+        if ($rating) {
+            $query->havingRaw('AVG(reviews.votes) >= ?', [$rating]);
+        }
 
+        $users = $query->get();
 
-        // if ($input_rating) {
-        //     $query->havingRaw('AVG(reviews.votes) >= ?',  [$input_rating]);
-        // }
-
-        $profiles = $query->get();
-
-
-        return response()->json([
-            'success' => true,
-            'guardamisonoqui' => true,
-            'profiles' => $profiles,
-            'id_recieved' => $specialization_id
-        ]);
+        return response()->json($users);
     }
 }
