@@ -24,16 +24,17 @@ class FilteredSearchController extends Controller
                 ->groupBy('users.id', 'profiles.id', 'specializations.id');
         }
 
-        $query->selectRaw('COALESCE(avg(reviews.votes), 0) as media_voti');  // Media dei voti
+        $query->selectRaw(
+            'ceil(avg(reviews.votes)) as media_voti,
+        COALESCE(count(reviews.id), 0) as totalReviews'
+        );
 
-        if ($rating) {
-            $query->havingRaw('AVG(reviews.votes) >= ?', [$rating]);
+        if ($rating !== null) {
+            $query->havingRaw('COALESCE(AVG(reviews.votes), 0) >= ?', [$rating]);
         }
 
-        $query->selectRaw('COALESCE(count(reviews.id), 0) as totalReviews');  // Numero recensioni
-
-        if ($reviews) {
-            $query->havingRaw('totalReviews >= ?', [$reviews]);
+        if ($reviews !== null) {
+            $query->havingRaw('COALESCE(COUNT(reviews.id), 0) >= ?', [$reviews]);
         }
 
         $users = $query->get();
