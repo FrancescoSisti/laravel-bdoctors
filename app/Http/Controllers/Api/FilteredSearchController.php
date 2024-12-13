@@ -10,7 +10,7 @@ use Illuminate\Http\Request;
 
 class FilteredSearchController extends Controller
 {
-    public function filter($id, $rating)
+    public function filter($id, $rating, $reviews)
     {
         // $input_rating = $rating->query('input_rating');
 
@@ -24,10 +24,16 @@ class FilteredSearchController extends Controller
                 ->groupBy('users.id', 'profiles.id', 'specializations.id');
         }
 
-        $query->selectRaw('COALESCE(AVG(reviews.votes), 0) as media_voti');  // Media dei voti
+        $query->selectRaw('COALESCE(avg(reviews.votes), 0) as media_voti');  // Media dei voti
 
         if ($rating) {
             $query->havingRaw('AVG(reviews.votes) >= ?', [$rating]);
+        }
+
+        $query->selectRaw('COALESCE(count(reviews.id), 0) as totalReviews');  // Numero recensioni
+
+        if ($reviews) {
+            $query->havingRaw('totalReviews >= ?', [$reviews]);
         }
 
         $users = $query->get();
