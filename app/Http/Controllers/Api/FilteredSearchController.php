@@ -15,11 +15,11 @@ class FilteredSearchController extends Controller
         $specialization_id = $request->query('specialization_id');
         $input_rating = $request->query('input_rating');
 
-        $query = User::select('users,*')
+        $query = User::select('users.*')
             ->join('specialization_user', 'users.id', '=', 'specialization_user.user_id')
-            ->join('specializations', 'specialization.id', '=', 'specialization_user.specialization_id')
-            ->where('users.specialization_id', '=', $specialization_id)
-            ->groupBy('specializations.id');
+            ->join('specializations', 'specializations.id', '=', 'specialization_user.specialization_id')
+            ->where('specialization_user.specialization_id', '=', $specialization_id);
+            //->groupBy('specializations.id', 'users.id');
 
         // if ($specialization_id) {
         //     $query->havingRaw('specialization_id', [$specialization_id]);
@@ -41,7 +41,9 @@ class FilteredSearchController extends Controller
 
         return response()->json([
             'success' => true,
-            'profiles' => $profiles
+            'guardamisonoqui' => true,
+            'profiles' => $profiles,
+            'id_recieved' => $specialization_id
         ]);
     }
 }
