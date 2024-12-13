@@ -46,7 +46,7 @@ Route::get('/specializations', function () {
 // Review routes
 Route::get('/reviews', [IndexReviewController::class, 'index'])->name('api.reviews.index');
 Route::post('/reviews', [CreateReviewController::class, 'create'])->name('api.reviews.create');
-Route::get('/reviews/filter', [FilteredSearchController::class, 'filter'])->name('api.reviews.filter');
+Route::get('/reviews/filter/{id}/{rating}', [FilteredSearchController::class, 'filter'])->name('api.reviews.filter');
 
 // Message routes
 Route::get('/messages', [IndexMessageController::class, 'index'])->name('api.messages.index');

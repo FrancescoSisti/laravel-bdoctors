@@ -5,23 +5,36 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Profile;
 use App\Models\Review;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class FilteredSearchController extends Controller
 {
     public function filter(Request $request)
     {
+        $specialization_id = $request->query('specialization_id');
+        $input_rating = $request->query('input_rating');
 
-        $min_average_votes = $request->query('min_average_votes');
+        $query = User::select('users,*')
+            ->join('specialization_user', 'users.id', '=', 'specialization_user.user_id')
+            ->join('specializations', 'specialization.id', '=', 'specialization_user.specialization_id')
+            ->where('users.specialization_id', '=', $specialization_id)
+            ->groupBy('specializations.id');
 
-        $query = Profile::select('profiles.*')
-            ->leftJoin('reviews', 'profiles.id', '=', 'reviews.profile_id')
-            ->selectRaw('AVG(reviews.votes) as average_votes')
-            ->groupBy('profiles.id');
+        // if ($specialization_id) {
+        //     $query->havingRaw('specialization_id', [$specialization_id]);
+        // }
 
-        if ($min_average_votes) {
-            $query->havingRaw('AVG(reviews.votes) >= 0', [$min_average_votes]);
-        }
+        // $query = Profile::select('profiles.*')
+        //     ->join('reviews', 'profiles.id', '=', 'reviews.profile_id')
+        //     ->selectRaw('AVG(reviews.votes) as average_votes')
+        //     ->groupBy('profiles.id')
+        //     ->orderBy('profile_id');
+
+
+        // if ($input_rating) {
+        //     $query->havingRaw('AVG(reviews.votes) >= ?',  [$input_rating]);
+        // }
 
         $profiles = $query->get();
 
