@@ -20,8 +20,8 @@ class UpdateController extends Controller
             $user = User::with('specializations')->findOrFail($id);
             //$newSpecializations = $request['specializations'];
 
-            //$specNuove = $validated['specializations'];
-            //$specVecchie = $request['oldSpecializations'];
+            $specNuove = $validated['specializations'];
+            $specVecchie = $request['oldSpecializations'];
 
             //if (count($validated['specializations']) == 0) {
                 $user->specializations()->sync($validated['specializations']);
@@ -78,8 +78,8 @@ class UpdateController extends Controller
                 'profile' => $profile,
                 //'specializations' => $newSpecializations,
                 'user' => $user,
-                //'specNuove' => $specNuove,
-                //'specVecchie' => $specVecchie
+                'specNuove' => $specNuove,
+                'specVecchie' => $specVecchie
             ], 201);
         } catch (\Illuminate\Validation\ValidationException $e) {
             Log::error('Profile update validation failed', ['errors' => $e->errors()]);
@@ -112,8 +112,8 @@ class UpdateController extends Controller
     {
         return $request->validate([
             'user_id' => ['required', 'exists:users,id'],
-            'curriculum' => ['required', 'file', 'mimes:jpeg,png,jpg,pdf', 'max:2048'],
-            'photo' => ['required', 'image', 'mimes:jpeg,png,jpg', 'max:2048'],
+            'curriculum' => ['required', 'file', 'mimes:jpeg,png,jpg,pdf,string', 'max:2048'],
+            'photo' => ['required', 'image', 'mimes:jpeg,png,jpg,url', 'max:2048'],
             'office_address' => ['required', 'string', 'max:100'],
             'phone' => ['required', 'string', 'max:20'],
             'services' => ['required', 'string', 'min:5', 'max:100'],

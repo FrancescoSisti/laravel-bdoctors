@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\CreateController;
 use App\Http\Controllers\Api\CreateMessageController;
 use App\Http\Controllers\Api\CreateReviewController;
 use App\Http\Controllers\Api\EditController;
+use App\Http\Controllers\Api\FilteredSearchController;
 use App\Http\Controllers\Api\IndexController;
 use App\Http\Controllers\Api\IndexMessageController;
 use App\Http\Controllers\Api\IndexReviewController;
@@ -45,6 +46,7 @@ Route::get('/specializations', function () {
 // Review routes
 Route::get('/reviews', [IndexReviewController::class, 'index'])->name('api.reviews.index');
 Route::post('/reviews', [CreateReviewController::class, 'create'])->name('api.reviews.create');
+Route::get('/reviews/filter', [FilteredSearchController::class, 'filter'])->nam('api.reviews.filter');
 
 // Message routes
 Route::get('/messages', [IndexMessageController::class, 'index'])->name('api.messages.index');
