@@ -46,8 +46,6 @@ class UpdateController extends Controller
             $profile->phone = $validated['phone'];
             $profile->office_address = $validated['office_address'];
             $profile->services = $validated['services'];
-            $profile->photo = $validated['photo'];
-            $profile->curriculum = $validated['curriculum'];
 
             if ($request->hasFile('photo')) {
                 $path = $request->file('photo')->store('photos', 'public');
@@ -112,8 +110,8 @@ class UpdateController extends Controller
     {
         return $request->validate([
             'user_id' => ['required', 'exists:users,id'],
-            'curriculum' => ['required', 'file', 'mimes:jpeg,png,jpg,pdf,string', 'max:2048'],
-            'photo' => ['required', 'image', 'mimes:jpeg,png,jpg,url', 'max:2048'],
+            'curriculum' => ['nullable', 'mimes:jpeg,png,jpg,pdf,string', 'max:2048'],
+            'photo' => ['nullable', 'mimes:jpeg,png,jpg,url', 'max:2048'],
             'office_address' => ['required', 'string', 'max:100'],
             'phone' => ['required', 'string', 'max:20'],
             'services' => ['required', 'string', 'min:5', 'max:100'],
