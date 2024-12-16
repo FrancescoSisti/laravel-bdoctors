@@ -18,44 +18,61 @@ class AuthController extends Controller
      */
     public function login(Request $request)
     {
-        try {
-            $validator = Validator::make($request->all(), [
-                'email' => ['required', 'string', 'email'],
-                'password' => ['required', 'string'],
-            ]);
+    //     try {
+    //         $validator = Validator::make($request->all(), [
+    //             'email' => ['required', 'string', 'email'],
+    //             'password' => ['required', 'string'],
+    //         ]);
 
-            if ($validator->fails()) {
-                Log::error('Login validation failed', ['errors' => $validator->errors()]);
-                return response()->json([
-                    'message' => 'Validation failed',
-                    'errors' => $validator->errors()
-                ], 422);
-            }
+    //         if ($validator->fails()) {
+    //             Log::error('Login validation failed', ['errors' => $validator->errors()]);
+    //             return response()->json([
+    //                 'message' => 'Validation failed',
+    //                 'errors' => $validator->errors()
+    //             ], 422);
+    //         }
 
-            if (!Auth::attempt($request->only('email', 'password'))) {
-                Log::warning('Failed login attempt', ['email' => $request->email]);
-                return response()->json([
-                    'message' => 'Invalid credentials'
-                ], 401);
-            }
+    //         if (!Auth::attempt($request->only('email', 'password'))) {
+    //             Log::warning('Failed login attempt', ['email' => $request->email]);
+    //             return response()->json([
+    //                 'message' => 'Invalid credentials'
+    //             ], 401);
+    //         }
 
-            $user = User::where('email', $request->email)->firstOrFail();
-            $token = $user->createToken('auth-token')->plainTextToken;
+    //         $user = User::where('email', $request->email)->firstOrFail();
+    //         $token = $user->createToken('auth-token')->plainTextToken;
 
-            Log::info('User logged in successfully', ['user_id' => $user->id]);
+    //         Log::info('User logged in successfully', ['user_id' => $user->id]);
 
-            return response()->json([
-                'message' => 'Login successful',
-                'user' => $user,
-                'token' => $token
-            ]);
+    //         return response()->json([
+    //             'message' => 'Login successful',
+    //             'user' => $user,
+    //             'token' => $token
+    //         ]);
 
-        } catch (\Exception $e) {
-            Log::error('Login error', ['error' => $e->getMessage()]);
-            return response()->json([
-                'message' => 'An error occurred during login'
-            ], 500);
+    //     } catch (\Exception $e) {
+    //         Log::error('Login error', ['error' => $e->getMessage()]);
+    //         return response()->json([
+    //             'message' => 'An error occurred during login'
+    //         ], 500);
+    //     }
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required',
+        ]);
+
+        // Verifica che l'utente esista e che la password sia corretta
+        $user = User::where('email', $request->email)->first();
+
+        if (!$user || !Hash::check($request->password, $user->password)) {
+            return response()->json(['message' => 'Unauthorized'], 401);
         }
+
+        // Effettua l'autenticazione e crea il token
+        Auth::login($user);
+
+        return response()->json(['message' => 'Logged in successfully']);
+    }
     }
 
     /**
