@@ -33,6 +33,9 @@ use App\Http\Controllers\Api\BraintreeApiController;
 
 // Public routes
 Route::post('/login', [AuthController::class, 'login'])->name('api.login');
+Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+    return $request->user();
+});
 Route::post('/register', [ApiRegisterController::class, 'register'])->name('api.register');
 
 // Specializations route
