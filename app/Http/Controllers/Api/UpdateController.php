@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Profile;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
@@ -16,12 +17,35 @@ class UpdateController extends Controller
 
             $profile = Profile::findOrFail($id);
 
+            $user = User::with('specializations')->findOrFail($id);
+            //$newSpecializations = $request['specializations'];
+
+            $specNuove = $validated['specializations'];
+            $specVecchie = $user->specializations;
+
+            //if (count($validated['specializations']) == 0) {
+                $user->specializations()->sync($validated['specializations']);
+            //} else {
+                //$user->specializations()->sync($request['oldSpecializations']);
+            //}
+
+
+            //$user->load('specializations');
+
+            // Updating the relation with users-specializations
+            // $user = User::findOrFail($id);
+            // $newSpecializations = $request['specializations'];
+            // foreach($newSpecializations as $singleSpec) {
+            //     $user->specializations()->attach($singleSpec['id']);
+            //     $user->load('specializations');
+            // }
+            //$user->specializations()->attach($request['specializations[0]']);
+            //$user->load('specializations');
+
 
             $profile->phone = $validated['phone'];
             $profile->office_address = $validated['office_address'];
             $profile->services = $validated['services'];
-            $profile->photo = $validated['photo'];
-            $profile->curriculum = $validated['curriculum'];
 
             if ($request->hasFile('photo')) {
                 $path = $request->file('photo')->store('photos', 'public');
@@ -49,13 +73,18 @@ class UpdateController extends Controller
 
             return response()->json([
                 'message' => 'Profile updated successfully',
-                'profile' => $profile
+                'profile' => $profile,
+                //'specializations' => $newSpecializations,
+                'user' => $user,
+                'specNuove' => $specNuove,
+                'specVecchie' => $specVecchie
             ], 201);
         } catch (\Illuminate\Validation\ValidationException $e) {
             Log::error('Profile update validation failed', ['errors' => $e->errors()]);
             return response()->json([
                 'message' => 'Validation failed',
-                'errors' => $e->errors()
+                'errors' => $e->errors(),
+                //'specializations' =>$newSpecializations
             ], 422);
         } catch (\Exception $e) {
             Log::error('Updating Profile failed', [
@@ -81,11 +110,12 @@ class UpdateController extends Controller
     {
         return $request->validate([
             'user_id' => ['required', 'exists:users,id'],
-            'curriculum' => ['required', 'file', 'mimes:jpeg,png,jpg,pdf', 'max:2048'],
-            'photo' => ['required', 'image', 'mimes:jpeg,png,jpg', 'max:2048'],
+            'curriculum' => ['nullable', 'mimes:jpeg,png,jpg,pdf,string', 'max:2048'],
+            'photo' => ['nullable', 'mimes:jpeg,png,jpg,url', 'max:2048'],
             'office_address' => ['required', 'string', 'max:100'],
             'phone' => ['required', 'string', 'max:20'],
             'services' => ['required', 'string', 'min:5', 'max:100'],
+            'specializations' => ['exists:specializations,id'],
         ]);
     }
 }

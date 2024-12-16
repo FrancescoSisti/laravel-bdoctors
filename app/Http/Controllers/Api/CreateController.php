@@ -17,12 +17,39 @@ class CreateController extends Controller
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function create(Request $request)
+    public function create(Request $request, string $id)
     {
         try {
             $validated = $this->validateProfileData($request);
 
-            $profile = $this->createProfile($validated);
+            $profile = new Profile();
+
+            $profile->user_id = $id;
+            $profile->phone = $validated['phone'];
+            $profile->office_address = $validated['office_address'];
+            $profile->services = $validated['services'];
+            $profile->photo = $validated['photo'];
+            $profile->curriculum = $validated['curriculum'];
+
+            if ($request->hasFile('photo')) {
+                $path = $request->file('photo')->store('photos', 'public');
+                $profile->photo = $path;
+
+                $photoUrl = asset('storage/' . $path);
+
+                // return response()->json(['photoUrl' => $photoUrl]);
+            }
+
+            if ($request->hasFile('curriculum')) {
+                $path = $request->file('curriculum')->store('curricula', 'public');
+                $profile->curriculum = $path;
+
+                $curriculumUrl = asset('storage/' . $path);
+
+                // return response()->json(['curriculumUrl' => $curriculumUrl]);
+            }
+
+            $profile->save();
 
             if ($request->hasFile('photo')) {
                 $path = $request->file('photo')->store('photos', 'public');

@@ -6,7 +6,10 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\Api\ShowController;
 use App\Http\Controllers\Api\CreateController;
+use App\Http\Controllers\Api\CreateMessageController;
+use App\Http\Controllers\Api\CreateReviewController;
 use App\Http\Controllers\Api\EditController;
+use App\Http\Controllers\Api\FilteredSearchController;
 use App\Http\Controllers\Api\IndexController;
 use App\Http\Controllers\Api\IndexMessageController;
 use App\Http\Controllers\Api\IndexReviewController;
@@ -15,6 +18,7 @@ use App\Http\Controllers\Api\RegisterController as ApiRegisterController;
 use App\Http\Controllers\Api\UpdateController;
 use App\Http\Controllers\Auth\RegisterController as AuthRegisterController;
 use App\Models\Specialization;
+use App\Http\Controllers\Api\BraintreeApiController;
 
 /*
 |--------------------------------------------------------------------------
@@ -42,15 +46,19 @@ Route::get('/specializations', function () {
 
 // Review routes
 Route::get('/reviews', [IndexReviewController::class, 'index'])->name('api.reviews.index');
+Route::post('/reviews', [CreateReviewController::class, 'create'])->name('api.reviews.create');
+Route::get('/reviews/filter/{id}/{rating}/{reviews}', [FilteredSearchController::class, 'filter'])->name('api.reviews.filter');
+
 // Message routes
 Route::get('/messages', [IndexMessageController::class, 'index'])->name('api.messages.index');
+Route::post('/messages', [CreateMessageController::class, 'create'])->name('api.messages.create');
 // Sponsorship routes
 Route::get('/sponsorships', [IndexSponsoshipController::class, 'index'])->name('api.sponsorships.index');
 
 // Profile routes
 Route::get('/profiles', [IndexController::class, 'index'])->name('api.profiles.index');
 Route::get('/profiles/{id}', [ShowController::class, 'show'])->name('api.profiles.show');
-Route::post('/profiles', [CreateController::class, 'create'])->name('api.profiles.create');
+Route::post('/profiles/{id}', [CreateController::class, 'create'])->name('api.profiles.create');
 Route::get('/profiles/edit/{id}', [EditController::class, 'edit'])->name('api.profiles.edit');
 Route::post('/profiles/edit/{id}', [UpdateController::class, 'update'])->name('api.profiles.update');
 
@@ -60,5 +68,8 @@ Route::middleware('auth:sanctum')->group(function () {
         return $request->user()->load('specializations');
     });
 
-    Route::post('/logout', [AuthController::class, 'logout'])->name('api.logout');
 });
+
+Route::post('/logout', [AuthController::class, 'logout'])->name('api.logout');
+Route::get('/braintree/token', [BraintreeApiController::class, 'generateToken']);
+Route::post('/braintree/process-payment', [BraintreeApiController::class, 'processPayment']);
