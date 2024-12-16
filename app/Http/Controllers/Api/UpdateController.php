@@ -21,7 +21,7 @@ class UpdateController extends Controller
             //$newSpecializations = $request['specializations'];
 
             $specNuove = $validated['specializations'];
-            $specVecchie = $request['oldSpecializations'];
+            $specVecchie = $user->specializations;
 
             //if (count($validated['specializations']) == 0) {
                 $user->specializations()->sync($validated['specializations']);
