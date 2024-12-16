@@ -18,6 +18,7 @@ use App\Http\Controllers\Api\RegisterController as ApiRegisterController;
 use App\Http\Controllers\Api\UpdateController;
 use App\Http\Controllers\Auth\RegisterController as AuthRegisterController;
 use App\Models\Specialization;
+use App\Http\Controllers\Api\BraintreeApiController;
 
 /*
 |--------------------------------------------------------------------------
@@ -67,5 +68,8 @@ Route::middleware('auth:sanctum')->group(function () {
         return $request->user()->load('specializations');
     });
 
-    Route::post('/logout', [AuthController::class, 'logout'])->name('api.logout');
 });
+
+Route::post('/logout', [AuthController::class, 'logout'])->name('api.logout');
+Route::get('/braintree/token', [BraintreeApiController::class, 'generateToken']);
+Route::post('/braintree/process-payment', [BraintreeApiController::class, 'processPayment']);
