@@ -6,6 +6,7 @@
     "license": "MIT",
     "require": {
         "php": "^8.1",
+        "braintree/braintree_php": "^6.21",
         "guzzlehttp/guzzle": "^7.2",
         "laravel/fortify": "^1.25",
         "laravel/framework": "^10.0",
