@@ -33,6 +33,7 @@ use App\Http\Controllers\Api\BraintreeApiController;
 
 // Public routes
 Route::post('/login', [AuthController::class, 'login'])->name('api.login');
+//aggiunta per auth
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
@@ -66,12 +67,12 @@ Route::get('/profiles/edit/{id}', [EditController::class, 'edit'])->name('api.pr
 Route::post('/profiles/edit/{id}', [UpdateController::class, 'update'])->name('api.profiles.update');
 
 // Protected routes
-Route::middleware('auth:sanctum')->group(function () {
-    Route::get('/user', function (Request $request) {
-        return $request->user()->load('specializations');
-    });
+// Route::middleware('auth:sanctum')->group(function () {
+//     Route::get('/user', function (Request $request) {
+//         return $request->user()->load('specializations');
+//     });
 
-});
+// });
 
 Route::post('/logout', [AuthController::class, 'logout'])->name('api.logout');
 Route::get('/braintree/token', [BraintreeApiController::class, 'generateToken']);
